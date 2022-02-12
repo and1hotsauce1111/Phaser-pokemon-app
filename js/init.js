@@ -1,8 +1,9 @@
-import InitMapScene from "./maps/InitMapScene.js";
-import WildScene from "./maps/WildScene.js";
-import BattleScene from "./battle/BattleScene.js";
-import BattleMenu from "./battle/BattleMenu.js";
+import InitMapScene from './maps/InitMapScene.js';
+import WildScene from './maps/WildScene.js';
+import BattleScene from './battle/BattleScene.js';
+import BattleMenu from './battle/BattleMenu.js';
 import TextScene from './battle/TextScene.js';
+import AttackScene from './battle/AttackMenu.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -16,7 +17,14 @@ const config = {
       gravity: { y: 0 },
     },
   },
-  scene: [InitMapScene, WildScene, BattleScene, BattleMenu, TextScene],
+  scene: [
+    InitMapScene,
+    WildScene,
+    BattleScene,
+    BattleMenu,
+    TextScene,
+    AttackScene,
+  ],
 };
 
 const game = new Phaser.Game(config);

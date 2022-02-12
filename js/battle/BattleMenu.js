@@ -34,7 +34,7 @@ export default class BattleMenu extends Phaser.Scene {
     this.menu.lineStyle(5, 0x8388A4, 1);
     this.menu.strokeRoundedRect(485, 491, 315, 108, 16);
 
-    this.fightText = this.add
+    this.attackText = this.add
       .text(550, 510, '戰鬥', { color: '#000' })
       .setFontSize('25px');
     this.pokemonText = this.add
@@ -53,7 +53,7 @@ export default class BattleMenu extends Phaser.Scene {
       [0, 0, 0, 20, 10, 10],
       0x636363,
     );
-    this.currentSelectedMenu = 'fight';
+    this.currentSelectedMenu = 'attack';
   }
 
   endBattle() {
@@ -66,10 +66,10 @@ export default class BattleMenu extends Phaser.Scene {
   updateSelectMenu() {
     // 使用Phaser.Input.Keyboard.JustDown 避免多次觸發keypress event
     if (Phaser.Input.Keyboard.JustDown(this.cursors.left) || Phaser.Input.Keyboard.JustDown(this.keyA)) {
-      if (this.currentSelectedMenu === 'fight' || this.currentSelectedMenu === 'pokemon') return;
+      if (this.currentSelectedMenu === 'attack' || this.currentSelectedMenu === 'pokemon') return;
       if (this.currentSelectedMenu === 'bag') {
         this.menuPointer.setPosition(533, 524);
-        this.currentSelectedMenu = 'fight';
+        this.currentSelectedMenu = 'attack';
       }
       if (this.currentSelectedMenu === 'run') {
         this.menuPointer.setPosition(533, 574);
@@ -78,7 +78,7 @@ export default class BattleMenu extends Phaser.Scene {
     }
     if (Phaser.Input.Keyboard.JustDown(this.cursors.right) || Phaser.Input.Keyboard.JustDown(this.keyD)) {
       if (this.currentSelectedMenu === 'bag' || this.currentSelectedMenu === 'run') return;
-      if (this.currentSelectedMenu === 'fight') {
+      if (this.currentSelectedMenu === 'attack') {
         this.menuPointer.setPosition(683, 524);
         this.currentSelectedMenu = 'bag';
       }
@@ -88,10 +88,10 @@ export default class BattleMenu extends Phaser.Scene {
       }
     }
     if (Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.keyW)) {
-      if (this.currentSelectedMenu === 'fight' || this.currentSelectedMenu === 'bag') return;
+      if (this.currentSelectedMenu === 'attack' || this.currentSelectedMenu === 'bag') return;
       if (this.currentSelectedMenu === 'pokemon') {
         this.menuPointer.setPosition(533, 524);
-        this.currentSelectedMenu = 'fight';
+        this.currentSelectedMenu = 'attack';
       }
       if (this.currentSelectedMenu === 'run') {
         this.menuPointer.setPosition(683, 524);
@@ -100,7 +100,7 @@ export default class BattleMenu extends Phaser.Scene {
     }
     if (Phaser.Input.Keyboard.JustDown(this.cursors.down) || Phaser.Input.Keyboard.JustDown(this.keyS)) {
       if (this.currentSelectedMenu === 'pokemon' || this.currentSelectedMenu === 'run') return;
-      if (this.currentSelectedMenu === 'fight') {
+      if (this.currentSelectedMenu === 'attack') {
         this.menuPointer.setPosition(533, 574);
         this.currentSelectedMenu = 'pokemon';
       }
@@ -115,6 +115,10 @@ export default class BattleMenu extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.keyEnter) || Phaser.Input.Keyboard.JustDown(this.keySpace)) {
       if (this.currentSelectedMenu === 'run') {
         this.endBattle();
+      }
+      if (this.currentSelectedMenu === 'attack') {
+        this.scene.pause('BattleMenu');
+        this.scene.run('AttackMenu');
       }
     }
   }
