@@ -1,0 +1,272 @@
+{
+	"textures": [
+		{
+			"image": "player.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 234,
+				"h": 101
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "player-front-walk.001.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 40,
+						"h": 51
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 1,
+						"w": 40,
+						"h": 50
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 40,
+						"h": 50
+					}
+				},
+				{
+					"filename": "player-left-walk.001.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 38,
+						"h": 46
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 38,
+						"h": 46
+					},
+					"frame": {
+						"x": 1,
+						"y": 53,
+						"w": 38,
+						"h": 46
+					}
+				},
+				{
+					"filename": "player-left-walk.003.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 42,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 2,
+						"w": 38,
+						"h": 46
+					},
+					"frame": {
+						"x": 41,
+						"y": 53,
+						"w": 38,
+						"h": 46
+					}
+				},
+				{
+					"filename": "player-left-walk.002.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 38,
+						"h": 50
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 38,
+						"h": 50
+					},
+					"frame": {
+						"x": 43,
+						"y": 1,
+						"w": 38,
+						"h": 50
+					}
+				},
+				{
+					"filename": "player-right-walk.001.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 37,
+						"h": 46
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 0,
+						"w": 36,
+						"h": 46
+					},
+					"frame": {
+						"x": 81,
+						"y": 53,
+						"w": 36,
+						"h": 46
+					}
+				},
+				{
+					"filename": "player-front-walk.003.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 39,
+						"h": 49
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 39,
+						"h": 49
+					},
+					"frame": {
+						"x": 83,
+						"y": 1,
+						"w": 39,
+						"h": 49
+					}
+				},
+				{
+					"filename": "player-back-walk.003.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 37,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 37,
+						"h": 48
+					},
+					"frame": {
+						"x": 119,
+						"y": 52,
+						"w": 37,
+						"h": 48
+					}
+				},
+				{
+					"filename": "player-right-walk.002.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 37,
+						"h": 49
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 0,
+						"w": 36,
+						"h": 49
+					},
+					"frame": {
+						"x": 124,
+						"y": 1,
+						"w": 36,
+						"h": 49
+					}
+				},
+				{
+					"filename": "player-front-walk.002.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 37,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 37,
+						"h": 48
+					},
+					"frame": {
+						"x": 158,
+						"y": 52,
+						"w": 37,
+						"h": 48
+					}
+				},
+				{
+					"filename": "player-back-walk.002.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 33,
+						"h": 50
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 1,
+						"w": 33,
+						"h": 49
+					},
+					"frame": {
+						"x": 162,
+						"y": 1,
+						"w": 33,
+						"h": 49
+					}
+				},
+				{
+					"filename": "player-right-walk.003.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 37,
+						"h": 45
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 0,
+						"w": 36,
+						"h": 45
+					},
+					"frame": {
+						"x": 197,
+						"y": 1,
+						"w": 36,
+						"h": 45
+					}
+				},
+				{
+					"filename": "player-back-walk.001.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 34,
+						"h": 49
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 1,
+						"w": 34,
+						"h": 48
+					},
+					"frame": {
+						"x": 197,
+						"y": 48,
+						"w": 34,
+						"h": 48
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:88099ef7f0a7c2cd29603c7d16e50b71:7c8a83f087c7d1af18742176a26f33d2:86d5339b780aedd87b35e2b7c0a7e11b$"
+	}
+}
