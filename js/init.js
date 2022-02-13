@@ -30,5 +30,8 @@ const config = {
 const game = new Phaser.Game(config);
 
 window.GameObjects = {
-  wildPokemon: {}
+  // 決定誰的回合
+  whosTurn: 'player',
+  wildPokemon: {},
+  playerPokemonTeam: []
 }

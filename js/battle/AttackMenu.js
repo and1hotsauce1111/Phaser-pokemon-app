@@ -1,16 +1,18 @@
+import { eventsCenter } from "../EventsCenter.js";
+
 export default class AttackMenu extends Phaser.Scene {
   constructor() {
     super({ key: 'AttackMenu' });
-    this.wildPokemon = {};
+    this.pokemonInfo = {};
     this.pokemonName = '';
   }
 
   preload() {}
 
   create() {
-    if (Object.keys(window.GameObjects.wildPokemon).length) {
-      this.wildPokemon = window.GameObjects.wildPokemon;
-      this.pokemonName = this.wildPokemon.zh_Hant_name || this.wildPokemon.name;
+    if (window.GameObjects.playerPokemonTeam.length) {
+      this.pokemonInfo = window.GameObjects.playerPokemonTeam[0];
+      this.pokemonName = this.pokemonInfo.zh_Hant_name || this.pokemonInfo.name;
     }
     this.createMenu();
   }
@@ -45,13 +47,18 @@ export default class AttackMenu extends Phaser.Scene {
     this.rightMenu.strokeRoundedRect();
     // menu border style
     this.rightMenu.lineStyle(5, 0x8388a4, 1);
-    this.rightMenu.strokeRoundedRect(485, 491, 315, 108, 16);
+    this.rightMenu.strokeRoundedRect(485, 491, 315, 108, 16); 
 
-    this.PPText = this.add.text(550, 510, 'PP: 20/20', {
+    // first move pp and attack type
+    const firstMovePP = this.pokemonInfo.moves[0].pp;
+    const currentPP = this.pokemonInfo.moves[0].pp;
+    const damageType = this.pokemonInfo.moves[0].damage_class.name;
+
+    this.PPText = this.add.text(550, 510, `PP: ${currentPP}/${firstMovePP}`, {
       font: '25px monospace',
       color: '#666',
     });
-    this.AttackTypeText = this.add.text(550, 550, '類型/火系', {
+    this.damageTypeText = this.add.text(550, 550, `類型/${damageType}`, {
       font: '25px monospace',
       color: '#666',
     });
@@ -65,22 +72,27 @@ export default class AttackMenu extends Phaser.Scene {
     this.leftMenu.strokeRoundedRect(3, 491, 485, 108, 16);
 
     // pokemon 招式
-    this.firstMove = this.add.text(45, 510, 'TELEPORT', {
+    // pp, power, names, accuracy
+    this.firstMoveName = this.pokemonInfo.moves[0].names.find(name => name.language.name === 'zh-Hant').name || this.pokemonInfo.moves[0].name;
+    this.firstMove = this.add.text(45, 510, this.firstMoveName, {
       font: '25px monospace',
       color: '#666',
     });
 
-    this.secondMove = this.add.text(300, 510, 'REFLECT', {
+    this.secondMoveName = this.pokemonInfo.moves[1].names.find(name => name.language.name === 'zh-Hant').name || this.pokemonInfo.moves[1].name;
+    this.secondMove = this.add.text(300, 510, this.secondMoveName, {
       font: '25px monospace',
       color: '#666',
     });
 
-    this.thirdMove = this.add.text(45, 560, 'DISABLE', {
+    this.thirdMoveName = this.pokemonInfo.moves[2].names.find(name => name.language.name === 'zh-Hant').name || this.pokemonInfo.moves[2].name;
+    this.thirdMove = this.add.text(45, 560, this.thirdMoveName, {
       font: '25px monospace',
       color: '#666',
     });
 
-    this.fourthMove = this.add.text(300, 560, 'PSYBEAM', {
+    this.fourthMoveName = this.pokemonInfo.moves[3].names.find(name => name.language.name === 'zh-Hant').name || this.pokemonInfo.moves[3].name;
+    this.fourthMove = this.add.text(300, 560, this.fourthMoveName, {
       font: '25px monospace',
       color: '#666',
     });
@@ -92,7 +104,7 @@ export default class AttackMenu extends Phaser.Scene {
       0x636363,
     );
 
-    this.currentSelectedMove = 'TELEPORT';
+    this.currentSelectedMove = this.firstMoveName;
   }
 
   updateAction() {
@@ -103,55 +115,108 @@ export default class AttackMenu extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.keyEnter) || Phaser.Input.Keyboard.JustDown(this.keySpace)) {
       this.scene.stop('AttackMenu');
       this.scene.stop('BattleMenu');
+      // 代入傷害/效果參數
       this.scene.run('TextScene', { text: `${this.pokemonName}使用了${this.currentSelectedMove}!`});
     }
   }
 
   updateSelectMenu() {
+    // show right side menu text
+    let movePP = null;
+    let currentPP = null;
+    let damageType = null;
     // 使用Phaser.Input.Keyboard.JustDown 避免多次觸發keypress event
     if (Phaser.Input.Keyboard.JustDown(this.cursors.left) || Phaser.Input.Keyboard.JustDown(this.keyA)) {
-      if (this.currentSelectedMove === 'TELEPORT' || this.currentSelectedMove === 'DISABLE') return;
-      if (this.currentSelectedMove === 'REFLECT') {
+      if (this.currentSelectedMove === this.firstMoveName || this.currentSelectedMove === this.thirdMoveName) return;
+
+      if (this.currentSelectedMove === this.secondMoveName) {
         this.menuPointer.setPosition(30, 525);
-        this.currentSelectedMove = 'TELEPORT';
+        this.currentSelectedMove = this.firstMoveName;
+        
+        movePP = this.pokemonInfo.moves[0].pp;
+        currentPP = this.pokemonInfo.moves[0].pp;
+        damageType = this.pokemonInfo.moves[0].damage_class.name;
       }
-      if (this.currentSelectedMove === 'PSYBEAM') {
+      if (this.currentSelectedMove === this.fourthMoveName) {
         this.menuPointer.setPosition(30, 575);
-        this.currentSelectedMove = 'DISABLE';
+        this.currentSelectedMove = this.thirdMoveName;
+
+        movePP = this.pokemonInfo.moves[2].pp;
+        currentPP = this.pokemonInfo.moves[2].pp;
+        damageType = this.pokemonInfo.moves[2].damage_class.name;
       }
+
+      this.PPText.text = `PP: ${currentPP}/${movePP}`;
+      this.damageTypeText.text = `類型/${damageType}`;
     }
+
     if (Phaser.Input.Keyboard.JustDown(this.cursors.right) || Phaser.Input.Keyboard.JustDown(this.keyD)) {
-      if (this.currentSelectedMove === 'REFLECT' || this.currentSelectedMove === 'PSYBEAM') return;
-      if (this.currentSelectedMove === 'TELEPORT') {
+      if (this.currentSelectedMove === this.secondMoveName || this.currentSelectedMove === this.fourthMoveName) return;
+      if (this.currentSelectedMove === this.firstMoveName) {
         this.menuPointer.setPosition(275, 525);
-        this.currentSelectedMove = 'REFLECT';
+        this.currentSelectedMove = this.secondMoveName;
+
+        movePP = this.pokemonInfo.moves[1].pp;
+        currentPP = this.pokemonInfo.moves[1].pp;
+        damageType = this.pokemonInfo.moves[1].damage_class.name;
       }
-      if (this.currentSelectedMove === 'DISABLE') {
+      if (this.currentSelectedMove === this.thirdMoveName) {
         this.menuPointer.setPosition(275, 575);
-        this.currentSelectedMove = 'PSYBEAM';
+        this.currentSelectedMove = this.fourthMoveName;
+
+        movePP = this.pokemonInfo.moves[3].pp;
+        currentPP = this.pokemonInfo.moves[3].pp;
+        damageType = this.pokemonInfo.moves[3].damage_class.name;
       }
+
+      this.PPText.text = `PP: ${currentPP}/${movePP}`;
+      this.damageTypeText.text = `類型/${damageType}`;
     }
+
     if (Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.keyW)) {
-      if (this.currentSelectedMove === 'TELEPORT' || this.currentSelectedMove === 'REFLECT') return;
-      if (this.currentSelectedMove === 'DISABLE') {
+      if (this.currentSelectedMove === this.firstMoveName || this.currentSelectedMove === this.secondMoveName) return;
+      if (this.currentSelectedMove === this.thirdMoveName) {
         this.menuPointer.setPosition(30, 525);
-        this.currentSelectedMove = 'TELEPORT';
+        this.currentSelectedMove = this.firstMoveName;
+
+        movePP = this.pokemonInfo.moves[0].pp;
+        currentPP = this.pokemonInfo.moves[0].pp;
+        damageType = this.pokemonInfo.moves[0].damage_class.name;
       }
-      if (this.currentSelectedMove === 'PSYBEAM') {
+      if (this.currentSelectedMove === this.fourthMoveName) {
         this.menuPointer.setPosition(275, 525);
-        this.currentSelectedMove = 'REFLECT';
+        this.currentSelectedMove = this.secondMoveName;
+
+        movePP = this.pokemonInfo.moves[1].pp;
+        currentPP = this.pokemonInfo.moves[1].pp;
+        damageType = this.pokemonInfo.moves[1].damage_class.name;
       }
+
+      this.PPText.text = `PP: ${currentPP}/${movePP}`;
+      this.damageTypeText.text = `類型/${damageType}`;
     }
+
     if (Phaser.Input.Keyboard.JustDown(this.cursors.down) || Phaser.Input.Keyboard.JustDown(this.keyS)) {
-      if (this.currentSelectedMove === 'DISABLE' || this.currentSelectedMove === 'PSYBEAM') return;
-      if (this.currentSelectedMove === 'TELEPORT') {
+      if (this.currentSelectedMove === this.thirdMoveName|| this.currentSelectedMove === this.fourthMoveName) return;
+      if (this.currentSelectedMove === this.firstMoveName) {
         this.menuPointer.setPosition(30, 575);
-        this.currentSelectedMove = 'DISABLE';
+        this.currentSelectedMove = this.thirdMoveName;
+
+        movePP = this.pokemonInfo.moves[2].pp;
+        currentPP = this.pokemonInfo.moves[2].pp;
+        damageType = this.pokemonInfo.moves[2].damage_class.name;
       }
-      if (this.currentSelectedMove === 'REFLECT') {
+      if (this.currentSelectedMove === this.secondMoveName) {
         this.menuPointer.setPosition(275, 575);
-        this.currentSelectedMove = 'PSYBEAM';
+        this.currentSelectedMove = this.fourthMoveName;
+
+        movePP = this.pokemonInfo.moves[3].pp;
+        currentPP = this.pokemonInfo.moves[3].pp;
+        damageType = this.pokemonInfo.moves[3].damage_class.name;
       }
+
+      this.PPText.text = `PP: ${currentPP}/${movePP}`;
+      this.damageTypeText.text = `類型/${damageType}`;
     }
   }
 }

@@ -1,6 +1,7 @@
 export default class Pokemon {
   constructor() {
     this.wildPokemonInfo = null;
+    this.playerInitPokemon = null;
   }
 
   async getAreas() {
@@ -24,10 +25,21 @@ export default class Pokemon {
     });
   }
 
+  async getPlayerInitPokemon() {
+    try {
+      const getPokemonResponse = await fetch('https://pokeapi.co/api/v2/pokemon/lucario');
+      const pokemonInfo = await getPokemonResponse.json();
+      const getPokemonSpeciesResponse = await fetch(pokemonInfo.species.url);
+      const pokemonSpecies = await getPokemonSpeciesResponse.json()
+
+      this.playerInitPokemon =  this.mapPokemonData(pokemonInfo, pokemonSpecies);
+    } catch(err) {
+      console.log(err);
+    }
+  }
 
   async getWildPokemon() {
     try {
-      // 需要資料 寶可夢名字 HP Exp Moves sprites
       const area = await this.getAreas();
       if (Object.keys(area).length) {
         // 取得地區野生pokemon 並隨機選取其一
@@ -43,15 +55,17 @@ export default class Pokemon {
           wildPokemon.species.url,
         );
         // mapping data
-        this.wildPokemonInfo = await this.mapWildPokemonData(wildPokemon, wildPokemonSpecies);
-        console.log(this.wildPokemonInfo);
+        this.wildPokemonInfo = this.mapPokemonData(
+          wildPokemon,
+          wildPokemonSpecies,
+        );
       }
     } catch (err) {
       console.log(err);
     }
   }
 
-  async mapWildPokemonData(info, species) {
+  mapPokemonData(info, species) {
     // base_experience, stats/hp, moves, name
     let pokemonInfo = {};
     // pokemon name in zh_tw/en
@@ -65,14 +79,16 @@ export default class Pokemon {
     // get pokemon moves
     // pokemonInfo.moves = info.moves.slice(0, 4);
     const movesArray = info.moves.slice(0, 4);
-    const moves = await Promise.all(movesArray.map(move => fetch(move.move.url).then(res => res.json()))).then(moves => {
-      return moves;
-    })
-    pokemonInfo.moves = moves;
+    Promise.all(
+      movesArray.map((move) => fetch(move.move.url).then((res) => res.json())),
+    ).then((moves) => {
+      pokemonInfo.moves = moves;
+    });
     // sprites
     pokemonInfo.sprites = info.sprites;
     // stats
-    pokemonInfo.stats = info.stats;
+    pokemonInfo.maxHp = info.stats.find(stat => stat.stat.name === 'hp').base_stat;
+    pokemonInfo.currentHp = info.stats.find(stat => stat.stat.name === 'hp').base_stat;
     // types
     pokemonInfo.types = info.types;
     // base exp

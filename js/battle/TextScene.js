@@ -1,3 +1,5 @@
+import { eventsCenter } from '../EventsCenter.js';
+
 export default class TextScene extends Phaser.Scene {
   constructor() {
     super({ key: 'TextScene' });
@@ -11,6 +13,7 @@ export default class TextScene extends Phaser.Scene {
   }
 
   create(config) {
+    this.fromScene = config.fromScene;
     if (Object.keys(window.GameObjects.wildPokemon).length) {
       this.wildPokemon = window.GameObjects.wildPokemon;
     }
@@ -146,12 +149,24 @@ export default class TextScene extends Phaser.Scene {
         callback: () => {
           this.endText = false;
           this.scene.stop('TextScene');
-          // 添加玩家Menu
-          this.scene.run('BattleMenu');
-          this.timer.remove();
+          this.updateAction();
         },
         callbackScope: this,
       });
     }
+  }
+
+  updateAction() {
+    const whosTurn = window.GameObjects.whosTurn;
+    // 若為戰鬥開場，text message結束直接顯示 battle menu
+    if (this.fromScene === 'BattleScene') {
+      this.scene.run('BattleMenu');
+    }
+    if (whosTurn === 'player' && this.fromScene !== 'BattleScene') {
+      // 玩家寶可夢攻擊力比例換算
+      window.GameObjects.wildPokemon.currentHp -= 10;
+      eventsCenter.emit('update-opponent-hp');
+    }
+    this.timer.remove();
   }
 }

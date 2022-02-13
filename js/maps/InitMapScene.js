@@ -1,4 +1,5 @@
 import Person from '../characters/Person.js';
+import Pokemon from '../characters/Pokemon.js';
 
 export default class InitMapScene extends Phaser.Scene {
   constructor() {
@@ -21,7 +22,7 @@ export default class InitMapScene extends Phaser.Scene {
     );
   }
 
-  create(fromMap) {
+  async create(fromMap) {
 
     // 判斷是否從其他地圖切換過來，改變player sprite direction
     let playerDirection = 'player-front-walk.002.png'; // default
@@ -56,6 +57,12 @@ export default class InitMapScene extends Phaser.Scene {
       null,
       playerDirection,
     );
+
+    // 若無存擋則獲取玩家第一隻pokemon
+    const pokemon = new Pokemon();
+    await pokemon.getPlayerInitPokemon();
+    window.GameObjects.playerPokemonTeam.push(pokemon.playerInitPokemon);
+
 
     // 添加障礙物
     this.collider = this.physics.add.collider(this.player.sprite, worldLayer);

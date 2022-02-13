@@ -148,7 +148,6 @@ export default class WildScene extends Phaser.Scene {
           await wildPokemon.getWildPokemon();
           window.GameObjects.wildPokemon = wildPokemon.wildPokemonInfo;
 
-          // TODO: 添加玩家的pokemon team至battle scene
           this.scene.run('BattleScene');
 
         } else {

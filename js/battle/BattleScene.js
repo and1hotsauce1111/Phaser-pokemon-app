@@ -1,8 +1,10 @@
+import { eventsCenter } from '../EventsCenter.js';
+
 export default class BattleScene extends Phaser.Scene {
   constructor() {
     super({ key: 'BattleScene' });
-    this.pokemonInfo = {};
-    this.pokemonName = '';
+    this.wildPokemonInfo = {};
+    this.wildPokemonName = '';
   }
 
   preload() {
@@ -33,23 +35,26 @@ export default class BattleScene extends Phaser.Scene {
     this.load.image('hp-bar', '/assets/images/hp_bar.png');
 
     // 判斷顯示第幾代pokemon sprites
-    const generation =
-      this.pokemonInfo.sprites.versions['generation-v']['black-white'][
-        'animated'
-      ];
-    if (generation) {
-      this.load.image('opponent-pokemon-sprite', generation.front_shiny);
-      // tempt player pokemon sprite => TODO: 替換成玩家列表的
-      this.load.image('player-pokemon-sprite', generation.back_shiny);
+    const wildPokemonGen =
+      this.wildPokemonInfo.sprites.versions['generation-v']['black-white']['animated'];
+    const playerPokemonGen = this.playerPokemonTeam[0].sprites.versions['generation-v']['black-white']['animated'];
+
+    if (wildPokemonGen) {
+      this.load.image('opponent-pokemon-sprite', wildPokemonGen.front_shiny);
     } else {
       this.load.image(
         'opponent-pokemon-sprite',
-        this.pokemonInfo.sprites.front_default,
+        this.wildPokemonInfo.sprites.front_default,
       );
+    }
+
+    if (playerPokemonGen) {
+      this.load.image('player-pokemon-sprite', playerPokemonGen.back_shiny);
+    } else {
       // tempt player pokemon sprite => TODO: 替換成玩家列表的
       this.load.image(
         'player-pokemon-sprite',
-        this.pokemonInfo.sprites.back_default,
+        this.playerPokemonGen.sprites.back_default,
       );
     }
   }
@@ -73,10 +78,13 @@ export default class BattleScene extends Phaser.Scene {
 
     // 添加開場對話
     this.scene.run('TextScene', {
-      text: `你遭遇了野生的${this.pokemonName}!`,
+      fromScene: 'BattleScene',
+      text: `你遭遇了野生的${this.wildPokemonName}!`,
     });
 
-    /** 顯示玩家hp / exp */
+    /**
+     * 預設顯示第一個 
+     * 顯示玩家hp / exp */
     this.playerHp = this.add.image(1000, 420, 'battle-bar').setAlpha(0);
     this.playerHpBar = this.add
       .image(975, 415, 'hp-bar')
@@ -84,14 +92,16 @@ export default class BattleScene extends Phaser.Scene {
       .setOrigin(0)
       .setScale(1.3);
     // 實際顯示 = hp百分比 * 147
-    this.playerHpBar.displayWidth = 147;
+    this.playerMaxHp = this.playerPokemonTeam[0].maxHp;
+    this.playerCurrentHp = this.playerPokemonTeam[0].currentHp;
+    this.playerHpBar.displayWidth = 147 * (this.playerCurrentHp / this.playerMaxHp);
     this.playerExpBar = this.add
       .image(925, 465, 'hp-bar')
       .setAlpha(0)
       .setOrigin(0)
       .setScale(0.8);
-    // 實際顯示 = exp百分比 * 195
-    this.playerExpBar.displayWidth = 195;
+    this.playerExpBar.displayWidth = 0;
+
     // 添加移入動畫
     // hpbarX = hp - 15 ; expbarX = hp - 65
     this.tweens.add({
@@ -116,15 +126,10 @@ export default class BattleScene extends Phaser.Scene {
       ease: 'Sine.easeInOut',
     });
     // 玩家pokemon名字／等級
-    this.playerName = this.add.text(
-      1000,
-      380,
-      this.pokemonName,
-      {
-        font: '18px monospace',
-        color: '#666',
-      },
-    );
+    this.playerName = this.add.text(1000, 380, this.playerPokemonName, {
+      font: '18px monospace',
+      color: '#666',
+    });
     this.playerLevel = this.add.text(1000, 380, 'Lv 5', {
       font: '16px monospace',
       color: '#666',
@@ -148,6 +153,7 @@ export default class BattleScene extends Phaser.Scene {
     // 玩家pokemon
     this.add.image(180, 420, 'player-pokemon-sprite').setScale(3.5);
 
+
     /** 顯示對手hp */
     this.opponentHp = this.add
       .image(-500, 200, 'opponent-battle-bar')
@@ -156,7 +162,10 @@ export default class BattleScene extends Phaser.Scene {
       .image(-535, 206, 'hp-bar')
       .setOrigin(0)
       .setScale(1.2);
-    this.opponentHpBar.displayWidth = 143;
+    this.opponentMaxHp = this.wildPokemonInfo.maxHp;
+    this.opponentCurrentHp = this.wildPokemonInfo.currentHp;
+    this.opponentHpBar.displayWidth =
+      143 * (this.opponentCurrentHp / this.opponentMaxHp);
     this.tweens.add({
       targets: this.opponentHp,
       x: 250,
@@ -172,15 +181,10 @@ export default class BattleScene extends Phaser.Scene {
       ease: 'Sine.easeInOut',
     });
     // 對手pokemon名字／等級
-    this.opponentName = this.add.text(
-      -500,
-      175,
-      this.pokemonName,
-      {
-        font: '18px monospace',
-        color: '#666',
-      },
-    );
+    this.opponentName = this.add.text(-500, 175, this.wildPokemonName, {
+      font: '18px monospace',
+      color: '#666',
+    });
     this.opponentLevel = this.add.text(-500, 175, 'Lv 5', {
       font: '16px monospace',
       color: '#666',
@@ -214,17 +218,46 @@ export default class BattleScene extends Phaser.Scene {
       duration: 900,
       ease: 'Sine.easeInOut',
     });
+
+
+    /** 跨Scene間的資料傳遞 */
+    eventsCenter.on('update-opponent-hp', this.updateOpponentHp, this);
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      eventsCenter.off('update-opponent-hp', this.updateOpponentHp, this);
+    });
   }
 
   update() {}
 
+  updateOpponentHp() {
+    // 先跑傷害的動畫, onComplete後扣hp
+    this.tweens.add({
+      targets: this.opponentPokemon,
+      alpha: 0,
+      yoyo: true,
+      duration: 300,
+      repeat: 1,
+      ease: 'Cubic.easeOut',
+      onComplete: () => {
+        const opponentCurrentHp = window.GameObjects.wildPokemon.currentHp;
+        this.opponentHpBar.displayWidth =
+          143 * (opponentCurrentHp / this.opponentMaxHp);
+        // 添加玩家Menu
+        this.scene.run('BattleMenu');
+      },
+    });
+  }
+
   init() {
     const wildPokemon = window.GameObjects.wildPokemon;
+    const playerPokemonTeam = window.GameObjects.playerPokemonTeam;
     if (Object.keys(wildPokemon)) {
-      this.pokemonInfo = wildPokemon;
-      this.pokemonName =
-        this.pokemonInfo.zh_Hant_name ||
-        this.pokemonInfo.name;
+      this.wildPokemonInfo = wildPokemon;
+      this.wildPokemonName = this.wildPokemonInfo.zh_Hant_name || this.wildPokemonInfo.name;
+    }
+    if (playerPokemonTeam.length) {
+      this.playerPokemonTeam = playerPokemonTeam;
+      this.playerPokemonName = playerPokemonTeam[0].zh_Hant_name || playerPokemonTeam[0].name;
     }
   }
 
