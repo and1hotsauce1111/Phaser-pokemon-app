@@ -1,11 +1,17 @@
 export default class AttackMenu extends Phaser.Scene {
   constructor() {
     super({ key: 'AttackMenu' });
+    this.wildPokemon = {};
+    this.pokemonName = '';
   }
 
   preload() {}
 
   create() {
+    if (Object.keys(window.GameObjects.wildPokemon).length) {
+      this.wildPokemon = window.GameObjects.wildPokemon;
+      this.pokemonName = this.wildPokemon.zh_Hant_name || this.wildPokemon.name;
+    }
     this.createMenu();
   }
 
@@ -93,6 +99,11 @@ export default class AttackMenu extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
       this.scene.stop('AttackMenu');
       this.scene.run('BattleMenu');
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keyEnter) || Phaser.Input.Keyboard.JustDown(this.keySpace)) {
+      this.scene.stop('AttackMenu');
+      this.scene.stop('BattleMenu');
+      this.scene.run('TextScene', { text: `${this.pokemonName}使用了${this.currentSelectedMove}!`});
     }
   }
 

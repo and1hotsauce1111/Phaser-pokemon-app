@@ -1,11 +1,15 @@
 export default class BattleMenu extends Phaser.Scene {
   constructor() {
     super({ key: 'BattleMenu' });
+    this.wildPokemon = {};
   }
 
   preload() {}
 
   create() {
+    if (Object.keys(window.GameObjects.wildPokemon).length) {
+      this.wildPokemon = window.GameObjects.wildPokemon;
+    }
     this.createMenu();
   }
 
@@ -59,6 +63,7 @@ export default class BattleMenu extends Phaser.Scene {
   endBattle() {
     this.scene.stop('BattleScene');
     this.scene.stop('BattleMenu');
+    this.scene.stop('TextScene');
     this.scene.run('WildScene');
     this.input.keyboard.removeAllKeys();
   }

@@ -32,7 +32,6 @@ export default class Pokemon {
         const randomNum = Math.floor(Math.random() * encounterPokemons.length);
         const randomWildPokemon = encounterPokemons[randomNum];
         this.wildPokemon = await this.getPokemonInfo(randomWildPokemon.pokemon.url);
-        console.log(this.wildPokemon);
         const wildPokemonSpecies = await this.getPokemonSpecies(this.wildPokemon.species.url);
         const zhHantName = wildPokemonSpecies.names.find(name => name.language.name === 'zh-Hant');
         this.wildPokemon.zh_Hant_name = Object.keys(zhHantName).length ? zhHantName.name : '';

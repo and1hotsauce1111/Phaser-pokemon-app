@@ -1,7 +1,8 @@
 export default class BattleScene extends Phaser.Scene {
   constructor() {
     super({ key: 'BattleScene' });
-    this.pokemonInfo = null;
+    this.pokemonInfo = {};
+    this.pokemonName = '';
   }
 
   preload() {
@@ -53,9 +54,9 @@ export default class BattleScene extends Phaser.Scene {
     }
   }
 
-  async create(config) {
+  async create() {
     // 添加過場動畫
-    await this.openingScene(config);
+    await this.openingScene();
 
     // 添加站戰鬥畫面背景
     const background = this.add
@@ -72,10 +73,10 @@ export default class BattleScene extends Phaser.Scene {
 
     // 添加開場對話
     this.scene.run('TextScene', {
-      text: `你遭遇了野生的${config.wildPokemon.zh_Hant_name}!`,
+      text: `你遭遇了野生的${this.pokemonName}!`,
     });
 
-    /** 顯示玩家hp / exp */ 
+    /** 顯示玩家hp / exp */
     this.playerHp = this.add.image(1000, 420, 'battle-bar').setAlpha(0);
     this.playerHpBar = this.add
       .image(975, 415, 'hp-bar')
@@ -118,7 +119,7 @@ export default class BattleScene extends Phaser.Scene {
     this.playerName = this.add.text(
       1000,
       380,
-      config.wildPokemon.zh_Hant_name || config.wildPokemon.name,
+      this.pokemonName,
       {
         font: '18px monospace',
         color: '#666',
@@ -174,7 +175,7 @@ export default class BattleScene extends Phaser.Scene {
     this.opponentName = this.add.text(
       -500,
       175,
-      config.wildPokemon.zh_Hant_name || config.wildPokemon.name,
+      this.pokemonName,
       {
         font: '18px monospace',
         color: '#666',
@@ -217,11 +218,17 @@ export default class BattleScene extends Phaser.Scene {
 
   update() {}
 
-  init(config) {
-    if (Object.keys(config.wildPokemon)) this.pokemonInfo = config.wildPokemon;
+  init() {
+    const wildPokemon = window.GameObjects.wildPokemon;
+    if (Object.keys(wildPokemon)) {
+      this.pokemonInfo = wildPokemon;
+      this.pokemonName =
+        this.pokemonInfo.zh_Hant_name ||
+        this.pokemonInfo.name;
+    }
   }
 
-  openingScene(config) {
+  openingScene() {
     return new Promise((resolve) => {
       this.opening = this.add.rectangle(400, 300, 1000, 1000, 0x000000);
       // 添加閃爍動畫

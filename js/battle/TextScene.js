@@ -3,6 +3,7 @@ export default class TextScene extends Phaser.Scene {
     super({ key: 'TextScene' });
     this.showText = null;
     this.endText = false;
+    this.wildPokemon = {};
   }
 
   preload() {
@@ -10,6 +11,10 @@ export default class TextScene extends Phaser.Scene {
   }
 
   create(config) {
+    if (Object.keys(window.GameObjects.wildPokemon).length) {
+      this.wildPokemon = window.GameObjects.wildPokemon;
+    }
+
     const textStyle = {
       font: '22px monospace',
       lineSpace: 4,
@@ -130,7 +135,6 @@ export default class TextScene extends Phaser.Scene {
     ) {
       // 加速文字動畫進行
       if (!this.endText) {
-        console.log('in');
         this.brush.pathTween.timeScale = 5;
         return;
       }
