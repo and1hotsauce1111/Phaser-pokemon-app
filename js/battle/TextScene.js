@@ -135,7 +135,8 @@ export default class TextScene extends Phaser.Scene {
     ) {
       // 加速文字動畫進行
       if (!this.endText) {
-        this.brush.pathTween.timeScale = 5;
+        // 僅針對文字動畫部分加速
+        this.brush.pathTween.timeScale = 10;
         return;
       }
 
