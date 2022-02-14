@@ -6,6 +6,7 @@ export default class TextScene extends Phaser.Scene {
     this.showText = null;
     this.endText = false;
     this.wildPokemon = {};
+    this.completeText = false;
   }
 
   preload() {
@@ -13,9 +14,15 @@ export default class TextScene extends Phaser.Scene {
   }
 
   create(config) {
+    console.log(config);
     this.fromScene = config.fromScene;
     if (Object.keys(window.GameObjects.wildPokemon).length) {
       this.wildPokemon = window.GameObjects.wildPokemon;
+    }
+    // 預設為玩家隊伍第一隻pokemon
+    // TODO: 添加玩家隊伍列表後，更換為玩家當前選擇的pokemon
+    if (window.GameObjects.playerPokemonTeam.length) {
+      this.playerCurrentPokemon = window.GameObjects.playerPokemonTeam[0];
     }
 
     const textStyle = {
@@ -148,7 +155,6 @@ export default class TextScene extends Phaser.Scene {
         delay: 300,
         callback: () => {
           this.endText = false;
-          this.scene.stop('TextScene');
           this.updateAction();
         },
         callbackScope: this,
@@ -160,9 +166,24 @@ export default class TextScene extends Phaser.Scene {
     const whosTurn = window.GameObjects.whosTurn;
     // 若為戰鬥開場，text message結束直接顯示 battle menu
     if (this.fromScene === 'BattleScene') {
-      this.scene.run('BattleMenu');
-    }
+      if (!this.completeText) {
+        this.completeText = true;
+        this.scene.start('TextScene', {
+          fromScene: 'BattleScene',
+          text: `去吧！${this.playerCurrentPokemon.zh_Hant_name || this.playerCurrentPokemon.name}!`,
+        }); 
+    
+        return;
+      }
+      // 添加summon pokemon animation
+      eventsCenter.emit('play-summonpokemon-anim');
+      this.scene.stop('TextScene');
+      this.completeText = false;
+    } 
+
+    // 玩家發動攻擊後
     if (whosTurn === 'player' && this.fromScene !== 'BattleScene') {
+      this.scene.stop('TextScene');
       // 玩家寶可夢攻擊力比例換算
       window.GameObjects.wildPokemon.currentHp -= 10;
       eventsCenter.emit('update-opponent-hp');
