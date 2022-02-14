@@ -1,4 +1,4 @@
-import { eventsCenter } from "../EventsCenter.js";
+import { eventsCenter } from '../EventsCenter.js';
 
 export default class AttackMenu extends Phaser.Scene {
   constructor() {
@@ -47,7 +47,7 @@ export default class AttackMenu extends Phaser.Scene {
     this.rightMenu.strokeRoundedRect();
     // menu border style
     this.rightMenu.lineStyle(5, 0x8388a4, 1);
-    this.rightMenu.strokeRoundedRect(485, 491, 315, 108, 16); 
+    this.rightMenu.strokeRoundedRect(485, 491, 315, 108, 16);
 
     // first move pp and attack type
     const firstMovePP = this.pokemonInfo.moves[0].pp;
@@ -73,25 +73,37 @@ export default class AttackMenu extends Phaser.Scene {
 
     // pokemon 招式
     // pp, power, names, accuracy
-    this.firstMoveName = this.pokemonInfo.moves[0].names.find(name => name.language.name === 'zh-Hant').name || this.pokemonInfo.moves[0].name;
+    this.firstMoveName =
+      this.pokemonInfo.moves[0].names.find(
+        (name) => name.language.name === 'zh-Hant',
+      ).name || this.pokemonInfo.moves[0].name;
     this.firstMove = this.add.text(45, 510, this.firstMoveName, {
       font: '25px monospace',
       color: '#666',
     });
 
-    this.secondMoveName = this.pokemonInfo.moves[1].names.find(name => name.language.name === 'zh-Hant').name || this.pokemonInfo.moves[1].name;
+    this.secondMoveName =
+      this.pokemonInfo.moves[1].names.find(
+        (name) => name.language.name === 'zh-Hant',
+      ).name || this.pokemonInfo.moves[1].name;
     this.secondMove = this.add.text(300, 510, this.secondMoveName, {
       font: '25px monospace',
       color: '#666',
     });
 
-    this.thirdMoveName = this.pokemonInfo.moves[2].names.find(name => name.language.name === 'zh-Hant').name || this.pokemonInfo.moves[2].name;
+    this.thirdMoveName =
+      this.pokemonInfo.moves[2].names.find(
+        (name) => name.language.name === 'zh-Hant',
+      ).name || this.pokemonInfo.moves[2].name;
     this.thirdMove = this.add.text(45, 560, this.thirdMoveName, {
       font: '25px monospace',
       color: '#666',
     });
 
-    this.fourthMoveName = this.pokemonInfo.moves[3].names.find(name => name.language.name === 'zh-Hant').name || this.pokemonInfo.moves[3].name;
+    this.fourthMoveName =
+      this.pokemonInfo.moves[3].names.find(
+        (name) => name.language.name === 'zh-Hant',
+      ).name || this.pokemonInfo.moves[3].name;
     this.fourthMove = this.add.text(300, 560, this.fourthMoveName, {
       font: '25px monospace',
       color: '#666',
@@ -105,6 +117,7 @@ export default class AttackMenu extends Phaser.Scene {
     );
 
     this.currentSelectedMove = this.firstMoveName;
+    this.currentSelectedMoveIndex = 0;
   }
 
   updateAction() {
@@ -112,11 +125,30 @@ export default class AttackMenu extends Phaser.Scene {
       this.scene.stop('AttackMenu');
       this.scene.run('BattleMenu');
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keyEnter) || Phaser.Input.Keyboard.JustDown(this.keySpace)) {
+    if (
+      Phaser.Input.Keyboard.JustDown(this.keyEnter) ||
+      Phaser.Input.Keyboard.JustDown(this.keySpace)
+    ) {
       this.scene.stop('AttackMenu');
       this.scene.stop('BattleMenu');
-      // 代入傷害/效果參數
-      this.scene.run('TextScene', { text: `${this.pokemonName}使用了${this.currentSelectedMove}!`});
+
+      // 計算攻擊招式效果
+      const currentMove = this.pokemonInfo.moves[this.currentSelectedMoveIndex];
+      const currentMovePower = currentMove.power;
+      const currentMoveAccuracy = currentMove.accuracy;
+      const currentMoveDamageClass = currentMove.damage_class.name;
+
+      const attackEffect = {
+        power: currentMovePower,
+        accuracy: currentMoveAccuracy,
+        damageClass: currentMoveDamageClass,
+      };
+
+      this.scene.run('TextScene', {
+        fromScene: 'AttackMenu',
+        text: `${this.pokemonName}使用了${this.currentSelectedMove}!`,
+        attackEffect,
+      });
     }
   }
 
@@ -126,13 +158,21 @@ export default class AttackMenu extends Phaser.Scene {
     let currentPP = null;
     let damageType = null;
     // 使用Phaser.Input.Keyboard.JustDown 避免多次觸發keypress event
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.left) || Phaser.Input.Keyboard.JustDown(this.keyA)) {
-      if (this.currentSelectedMove === this.firstMoveName || this.currentSelectedMove === this.thirdMoveName) return;
+    if (
+      Phaser.Input.Keyboard.JustDown(this.cursors.left) ||
+      Phaser.Input.Keyboard.JustDown(this.keyA)
+    ) {
+      if (
+        this.currentSelectedMove === this.firstMoveName ||
+        this.currentSelectedMove === this.thirdMoveName
+      )
+        return;
 
       if (this.currentSelectedMove === this.secondMoveName) {
         this.menuPointer.setPosition(30, 525);
         this.currentSelectedMove = this.firstMoveName;
-        
+        this.currentSelectedMoveIndex = 0;
+
         movePP = this.pokemonInfo.moves[0].pp;
         currentPP = this.pokemonInfo.moves[0].pp;
         damageType = this.pokemonInfo.moves[0].damage_class.name;
@@ -140,6 +180,7 @@ export default class AttackMenu extends Phaser.Scene {
       if (this.currentSelectedMove === this.fourthMoveName) {
         this.menuPointer.setPosition(30, 575);
         this.currentSelectedMove = this.thirdMoveName;
+        this.currentSelectedMoveIndex = 2;
 
         movePP = this.pokemonInfo.moves[2].pp;
         currentPP = this.pokemonInfo.moves[2].pp;
@@ -150,11 +191,19 @@ export default class AttackMenu extends Phaser.Scene {
       this.damageTypeText.text = `類型/${damageType}`;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.right) || Phaser.Input.Keyboard.JustDown(this.keyD)) {
-      if (this.currentSelectedMove === this.secondMoveName || this.currentSelectedMove === this.fourthMoveName) return;
+    if (
+      Phaser.Input.Keyboard.JustDown(this.cursors.right) ||
+      Phaser.Input.Keyboard.JustDown(this.keyD)
+    ) {
+      if (
+        this.currentSelectedMove === this.secondMoveName ||
+        this.currentSelectedMove === this.fourthMoveName
+      )
+        return;
       if (this.currentSelectedMove === this.firstMoveName) {
         this.menuPointer.setPosition(275, 525);
         this.currentSelectedMove = this.secondMoveName;
+        this.currentSelectedMoveIndex = 1;
 
         movePP = this.pokemonInfo.moves[1].pp;
         currentPP = this.pokemonInfo.moves[1].pp;
@@ -163,6 +212,7 @@ export default class AttackMenu extends Phaser.Scene {
       if (this.currentSelectedMove === this.thirdMoveName) {
         this.menuPointer.setPosition(275, 575);
         this.currentSelectedMove = this.fourthMoveName;
+        this.currentSelectedMoveIndex = 3;
 
         movePP = this.pokemonInfo.moves[3].pp;
         currentPP = this.pokemonInfo.moves[3].pp;
@@ -173,11 +223,19 @@ export default class AttackMenu extends Phaser.Scene {
       this.damageTypeText.text = `類型/${damageType}`;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.keyW)) {
-      if (this.currentSelectedMove === this.firstMoveName || this.currentSelectedMove === this.secondMoveName) return;
+    if (
+      Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
+      Phaser.Input.Keyboard.JustDown(this.keyW)
+    ) {
+      if (
+        this.currentSelectedMove === this.firstMoveName ||
+        this.currentSelectedMove === this.secondMoveName
+      )
+        return;
       if (this.currentSelectedMove === this.thirdMoveName) {
         this.menuPointer.setPosition(30, 525);
         this.currentSelectedMove = this.firstMoveName;
+        this.currentSelectedMoveIndex = 0;
 
         movePP = this.pokemonInfo.moves[0].pp;
         currentPP = this.pokemonInfo.moves[0].pp;
@@ -186,6 +244,7 @@ export default class AttackMenu extends Phaser.Scene {
       if (this.currentSelectedMove === this.fourthMoveName) {
         this.menuPointer.setPosition(275, 525);
         this.currentSelectedMove = this.secondMoveName;
+        this.currentSelectedMoveIndex = 1;
 
         movePP = this.pokemonInfo.moves[1].pp;
         currentPP = this.pokemonInfo.moves[1].pp;
@@ -196,11 +255,19 @@ export default class AttackMenu extends Phaser.Scene {
       this.damageTypeText.text = `類型/${damageType}`;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.down) || Phaser.Input.Keyboard.JustDown(this.keyS)) {
-      if (this.currentSelectedMove === this.thirdMoveName|| this.currentSelectedMove === this.fourthMoveName) return;
+    if (
+      Phaser.Input.Keyboard.JustDown(this.cursors.down) ||
+      Phaser.Input.Keyboard.JustDown(this.keyS)
+    ) {
+      if (
+        this.currentSelectedMove === this.thirdMoveName ||
+        this.currentSelectedMove === this.fourthMoveName
+      )
+        return;
       if (this.currentSelectedMove === this.firstMoveName) {
         this.menuPointer.setPosition(30, 575);
         this.currentSelectedMove = this.thirdMoveName;
+        this.currentSelectedMoveIndex = 2;
 
         movePP = this.pokemonInfo.moves[2].pp;
         currentPP = this.pokemonInfo.moves[2].pp;
@@ -209,6 +276,7 @@ export default class AttackMenu extends Phaser.Scene {
       if (this.currentSelectedMove === this.secondMoveName) {
         this.menuPointer.setPosition(275, 575);
         this.currentSelectedMove = this.fourthMoveName;
+        this.currentSelectedMoveIndex = 3;
 
         movePP = this.pokemonInfo.moves[3].pp;
         currentPP = this.pokemonInfo.moves[3].pp;

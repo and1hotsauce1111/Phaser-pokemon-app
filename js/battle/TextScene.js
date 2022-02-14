@@ -25,6 +25,14 @@ export default class TextScene extends Phaser.Scene {
       this.playerCurrentPokemon = window.GameObjects.playerPokemonTeam[0];
     }
 
+    if (config.attackEffect) {
+      this.attackEffect = config.attackEffect;
+    }
+
+    if (config.wildPokemonImage) {
+      this.wildPokemonImage = config.wildPokemonImage;
+    }
+
     const textStyle = {
       font: '22px monospace',
       lineSpace: 4,
@@ -164,30 +172,48 @@ export default class TextScene extends Phaser.Scene {
 
   updateAction() {
     const whosTurn = window.GameObjects.whosTurn;
+    const isEndBattle = window.GameObjects.isEndBattle;
+
     // 若為戰鬥開場，text message結束直接顯示 battle menu
     if (this.fromScene === 'BattleScene') {
       if (!this.completeText) {
         this.completeText = true;
         this.scene.start('TextScene', {
           fromScene: 'BattleScene',
-          text: `去吧！${this.playerCurrentPokemon.zh_Hant_name || this.playerCurrentPokemon.name}!`,
-        }); 
-    
+          text: `去吧！${
+            this.playerCurrentPokemon.zh_Hant_name ||
+            this.playerCurrentPokemon.name
+          }!`,
+        });
+
         return;
       }
       // 添加summon pokemon animation
       eventsCenter.emit('play-summonpokemon-anim');
       this.scene.stop('TextScene');
       this.completeText = false;
-    } 
+    }
 
     // 玩家發動攻擊後
-    if (whosTurn === 'player' && this.fromScene !== 'BattleScene') {
+    if (whosTurn === 'player' && this.fromScene !== 'BattleScene' && !isEndBattle) {
+      // damage_class !== 'status' 時才顯示攻擊效果
+      if (this.attackEffect.damageClass === 'status') {
+        this.scene.stop('TextScene');
+        this.scene.run('BattleMenu');
+        return;
+      }
+
       this.scene.stop('TextScene');
       // 玩家寶可夢攻擊力比例換算
-      window.GameObjects.wildPokemon.currentHp -= 10;
+      const actualPower = this.attackEffect.power * 0.35;
+      window.GameObjects.wildPokemon.currentHp -= actualPower;
       eventsCenter.emit('update-opponent-hp');
     }
+
+    if (isEndBattle) {
+      eventsCenter.emit('end-battle-anim');
+    }
+
     this.timer.remove();
   }
 }
