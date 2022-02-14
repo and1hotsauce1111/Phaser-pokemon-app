@@ -202,14 +202,14 @@ export default class BattleScene extends Phaser.Scene {
     this.tweens.add({
       targets: this.opponentPokemon,
       alpha: 0,
-      duration: 1000,
+      duration: 500,
       delay: 500,
       ease: 'Cubic.easeOut',
       onComplete: () => {
+        this.scene.stop('TextScene');
         this.opponentPokemon.destroy();
         this.scene.stop('BattleScene');
         this.scene.stop('BattleMenu');
-        this.scene.stop('TextScene');
         this.scene.run('WildScene');
         this.input.keyboard.removeAllKeys();
         window.GameObjects.isEndBattle = false;
@@ -363,32 +363,55 @@ export default class BattleScene extends Phaser.Scene {
   }
 
   updateOpponentHp() {
+    // 添加攻擊時移動玩家pokemon效果
     // 先跑傷害的動畫, onComplete後扣hp
+
     this.tweens.add({
-      targets: this.opponentPokemon,
-      alpha: 0,
+      targets: this.playerPokemon,
+      x: 200,
       yoyo: true,
-      duration: 300,
-      repeat: 1,
+      duration: 100,
       ease: 'Cubic.easeOut',
       onComplete: () => {
-        const opponentCurrentHp = window.GameObjects.wildPokemon.currentHp;
-        if (opponentCurrentHp <= 0) {
-          // 結束戰鬥
-          this.opponentHpBar.displayWidth = 0;
-          window.GameObjects.isEndBattle = true;
-          this.scene.run('TextScene', {
-            text: `你擊敗了野生的${this.wildPokemonName}`,
-            wildPokemonImage: this.opponentPokemon,
-          });
+        this.tweens.add({
+          targets: this.opponentPokemon,
+          alpha: 0,
+          yoyo: true,
+          duration: 300,
+          repeat: 1,
+          ease: 'Cubic.easeOut',
+          onComplete: () => {
+            const opponentCurrentHp = window.GameObjects.wildPokemon.currentHp;
+            if (opponentCurrentHp <= 0) {
+              // 結束戰鬥
+              this.opponentHpBar.displayWidth = 0;
+              window.GameObjects.isEndBattle = true;
+              this.scene.run('TextScene', {
+                text: `你擊敗了野生的${this.wildPokemonName}`,
+                wildPokemonImage: this.opponentPokemon,
+              });
 
-          return;
-        }
-        this.opponentHpBar.displayWidth =
-          143 * (opponentCurrentHp / this.opponentMaxHp);
-        // 換成對手回合
-        // window.GameObjects.whosTurn = 'opponent';
-        this.scene.run('BattleMenu');
+              return;
+            }
+
+            this.tweens.add({
+              targets: this.opponentHpBar,
+              displayWidth: 143 * (opponentCurrentHp / this.opponentMaxHp),
+              ease: 'Sine.easeOut',
+              duration: 500,
+              onComplete: () => {
+                // 換成對手回合
+                // window.GameObjects.whosTurn = 'opponent';
+                this.scene.run('BattleMenu');
+              },
+            });
+            // this.opponentHpBar.displayWidth =
+            //   143 * (opponentCurrentHp / this.opponentMaxHp);
+            // // 換成對手回合
+            // // window.GameObjects.whosTurn = 'opponent';
+            // this.scene.run('BattleMenu');
+          },
+        });
       },
     });
   }

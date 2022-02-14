@@ -5,6 +5,7 @@ export default class AttackMenu extends Phaser.Scene {
     super({ key: 'AttackMenu' });
     this.pokemonInfo = {};
     this.pokemonName = '';
+    // this.movePP = {};
   }
 
   preload() {}
@@ -49,20 +50,6 @@ export default class AttackMenu extends Phaser.Scene {
     this.rightMenu.lineStyle(5, 0x8388a4, 1);
     this.rightMenu.strokeRoundedRect(485, 491, 315, 108, 16);
 
-    // first move pp and attack type
-    const firstMovePP = this.pokemonInfo.moves[0].pp;
-    const currentPP = this.pokemonInfo.moves[0].pp;
-    const damageType = this.pokemonInfo.moves[0].damage_class.name;
-
-    this.PPText = this.add.text(550, 510, `PP: ${currentPP}/${firstMovePP}`, {
-      font: '25px monospace',
-      color: '#666',
-    });
-    this.damageTypeText = this.add.text(550, 550, `類型/${damageType}`, {
-      font: '25px monospace',
-      color: '#666',
-    });
-
     // 左側招式列表
     this.leftMenu = this.add.graphics();
     this.leftMenu.fillStyle(0xffffff, 1);
@@ -72,12 +59,35 @@ export default class AttackMenu extends Phaser.Scene {
     this.leftMenu.strokeRoundedRect(3, 491, 485, 108, 16);
 
     // pokemon 招式
-    // pp, power, names, accuracy
     this.firstMoveName =
       this.pokemonInfo.moves[0].names.find(
         (name) => name.language.name === 'zh-Hant',
       ).name || this.pokemonInfo.moves[0].name;
     this.firstMove = this.add.text(45, 510, this.firstMoveName, {
+      font: '25px monospace',
+      color: '#666',
+    });
+
+    // 紀錄招式pp
+    this.movePP = window.GameObjects.playerPokemonTeam[0].movePP;
+    const damageType = this.pokemonInfo.moves[0].damage_class.name;
+    const currentPP = this.movePP[this.firstMoveName];
+    const firstMovePP = this.pokemonInfo.moves[0].pp;
+
+    // if (this.movePP[this.firstMoveName] === undefined) {
+    //   // first move pp and attack type
+    //   currentPP = this.pokemonInfo.moves[0].pp;
+    //   this.movePP[this.firstMoveName] = currentPP;
+    // } else {
+    //   // 更新pp值
+    //   currentPP = this.movePP[this.firstMoveName];
+    // }
+
+    this.PPText = this.add.text(550, 510, `PP: ${currentPP}/${firstMovePP}`, {
+      font: '25px monospace',
+      color: '#666',
+    });
+    this.damageTypeText = this.add.text(550, 550, `類型/${damageType}`, {
       font: '25px monospace',
       color: '#666',
     });
@@ -90,6 +100,9 @@ export default class AttackMenu extends Phaser.Scene {
       font: '25px monospace',
       color: '#666',
     });
+    if (!this.movePP[this.secondMoveName]) {
+      this.movePP[this.secondMoveName] = this.pokemonInfo.moves[1].pp;
+    }
 
     this.thirdMoveName =
       this.pokemonInfo.moves[2].names.find(
@@ -99,6 +112,9 @@ export default class AttackMenu extends Phaser.Scene {
       font: '25px monospace',
       color: '#666',
     });
+    if (!this.movePP[this.thirdMoveName]) {
+      this.movePP[this.thirdMoveName] = this.pokemonInfo.moves[2].pp;
+    }
 
     this.fourthMoveName =
       this.pokemonInfo.moves[3].names.find(
@@ -108,6 +124,9 @@ export default class AttackMenu extends Phaser.Scene {
       font: '25px monospace',
       color: '#666',
     });
+    if (!this.movePP[this.fourthMoveName]) {
+      this.movePP[this.fourthMoveName] = this.pokemonInfo.moves[3].pp;
+    }
 
     this.menuPointer = this.add.polygon(
       30,
@@ -129,6 +148,10 @@ export default class AttackMenu extends Phaser.Scene {
       Phaser.Input.Keyboard.JustDown(this.keyEnter) ||
       Phaser.Input.Keyboard.JustDown(this.keySpace)
     ) {
+
+      // PP為0時
+      if (this.movePP[this.currentSelectedMove] === 0) return;
+
       this.scene.stop('AttackMenu');
       this.scene.stop('BattleMenu');
 
@@ -137,6 +160,8 @@ export default class AttackMenu extends Phaser.Scene {
       const currentMovePower = currentMove.power;
       const currentMoveAccuracy = currentMove.accuracy;
       const currentMoveDamageClass = currentMove.damage_class.name;
+
+      window.GameObjects.playerPokemonTeam[0].movePP[this.currentSelectedMove] -= 1;
 
       const attackEffect = {
         power: currentMovePower,
@@ -174,7 +199,7 @@ export default class AttackMenu extends Phaser.Scene {
         this.currentSelectedMoveIndex = 0;
 
         movePP = this.pokemonInfo.moves[0].pp;
-        currentPP = this.pokemonInfo.moves[0].pp;
+        currentPP = this.movePP[this.firstMoveName];
         damageType = this.pokemonInfo.moves[0].damage_class.name;
       }
       if (this.currentSelectedMove === this.fourthMoveName) {
@@ -183,7 +208,7 @@ export default class AttackMenu extends Phaser.Scene {
         this.currentSelectedMoveIndex = 2;
 
         movePP = this.pokemonInfo.moves[2].pp;
-        currentPP = this.pokemonInfo.moves[2].pp;
+        currentPP = this.movePP[this.thirdMoveName];
         damageType = this.pokemonInfo.moves[2].damage_class.name;
       }
 
@@ -206,7 +231,7 @@ export default class AttackMenu extends Phaser.Scene {
         this.currentSelectedMoveIndex = 1;
 
         movePP = this.pokemonInfo.moves[1].pp;
-        currentPP = this.pokemonInfo.moves[1].pp;
+        currentPP = this.movePP[this.secondMoveName];
         damageType = this.pokemonInfo.moves[1].damage_class.name;
       }
       if (this.currentSelectedMove === this.thirdMoveName) {
@@ -215,7 +240,7 @@ export default class AttackMenu extends Phaser.Scene {
         this.currentSelectedMoveIndex = 3;
 
         movePP = this.pokemonInfo.moves[3].pp;
-        currentPP = this.pokemonInfo.moves[3].pp;
+        currentPP = this.movePP[this.fourthMoveName];
         damageType = this.pokemonInfo.moves[3].damage_class.name;
       }
 
@@ -238,7 +263,7 @@ export default class AttackMenu extends Phaser.Scene {
         this.currentSelectedMoveIndex = 0;
 
         movePP = this.pokemonInfo.moves[0].pp;
-        currentPP = this.pokemonInfo.moves[0].pp;
+        currentPP = this.movePP[this.firstMoveName];
         damageType = this.pokemonInfo.moves[0].damage_class.name;
       }
       if (this.currentSelectedMove === this.fourthMoveName) {
@@ -247,7 +272,7 @@ export default class AttackMenu extends Phaser.Scene {
         this.currentSelectedMoveIndex = 1;
 
         movePP = this.pokemonInfo.moves[1].pp;
-        currentPP = this.pokemonInfo.moves[1].pp;
+        currentPP = this.movePP[this.secondMoveName];
         damageType = this.pokemonInfo.moves[1].damage_class.name;
       }
 
@@ -270,7 +295,7 @@ export default class AttackMenu extends Phaser.Scene {
         this.currentSelectedMoveIndex = 2;
 
         movePP = this.pokemonInfo.moves[2].pp;
-        currentPP = this.pokemonInfo.moves[2].pp;
+        currentPP = this.movePP[this.thirdMoveName];
         damageType = this.pokemonInfo.moves[2].damage_class.name;
       }
       if (this.currentSelectedMove === this.secondMoveName) {
@@ -279,7 +304,7 @@ export default class AttackMenu extends Phaser.Scene {
         this.currentSelectedMoveIndex = 3;
 
         movePP = this.pokemonInfo.moves[3].pp;
-        currentPP = this.pokemonInfo.moves[3].pp;
+        currentPP = this.movePP[this.fourthMoveName];
         damageType = this.pokemonInfo.moves[3].damage_class.name;
       }
 

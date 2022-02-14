@@ -14,7 +14,6 @@ export default class TextScene extends Phaser.Scene {
   }
 
   create(config) {
-    console.log(config);
     this.fromScene = config.fromScene;
     if (Object.keys(window.GameObjects.wildPokemon).length) {
       this.wildPokemon = window.GameObjects.wildPokemon;

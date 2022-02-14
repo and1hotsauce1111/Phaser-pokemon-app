@@ -83,6 +83,13 @@ export default class Pokemon {
       movesArray.map((move) => fetch(move.move.url).then((res) => res.json())),
     ).then((moves) => {
       pokemonInfo.moves = moves;
+      // move pp
+      let movePP = {};
+      moves.forEach(move => {
+        const moveName = move.names.find(name => name.language.name === 'zh-Hant').name || move.name;
+        movePP[moveName] = move.pp;
+      })
+      pokemonInfo.movePP = movePP;
     });
     // sprites
     pokemonInfo.sprites = info.sprites;
@@ -93,6 +100,7 @@ export default class Pokemon {
     pokemonInfo.types = info.types;
     // base exp
     pokemonInfo.baseExp = info.base_experience;
+
 
     return pokemonInfo;
   }
