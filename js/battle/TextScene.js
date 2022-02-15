@@ -24,12 +24,12 @@ export default class TextScene extends Phaser.Scene {
       this.playerCurrentPokemon = window.GameObjects.playerPokemonTeam[0];
     }
 
-    if (config.attackEffect) {
-      this.attackEffect = config.attackEffect;
+    if (config.playerAttackEffect) {
+      this.playerAttackEffect = config.playerAttackEffect;
     }
 
-    if (config.wildPokemonImage) {
-      this.wildPokemonImage = config.wildPokemonImage;
+    if (config.opponentAttackEffect) {
+      this.opponentAttackEffect = config.opponentAttackEffect;
     }
 
     const textStyle = {
@@ -196,7 +196,27 @@ export default class TextScene extends Phaser.Scene {
     // 玩家發動攻擊後
     if (whosTurn === 'player' && this.fromScene !== 'BattleScene' && !isEndBattle) {
       // damage_class !== 'status' 時才顯示攻擊效果
-      if (this.attackEffect.damageClass === 'status') {
+      if (this.playerAttackEffect.damageClass === 'status') {
+        this.scene.stop('TextScene');
+        // 對方進攻
+        window.GameObjects.whosTurn = 'opponent';
+        eventsCenter.emit('opponent-attack', this.wildPokemon);
+        return;
+      }
+
+      this.scene.stop('TextScene');
+      // 玩家寶可夢攻擊力比例換算
+      const actualPower = this.playerAttackEffect.power * 0.35;
+      window.GameObjects.wildPokemon.currentHp -= actualPower;
+      eventsCenter.emit('update-opponent-hp');
+    }
+
+    // 對手進攻回合
+    if (whosTurn === 'opponent' && !isEndBattle) {
+      console.log('opponent attack');
+      console.log(this.opponentAttackEffect);
+      if (this.opponentAttackEffect.damageClass === 'status') {
+        window.GameObjects.whosTurn = 'player';
         this.scene.stop('TextScene');
         this.scene.run('BattleMenu');
         return;
@@ -204,9 +224,11 @@ export default class TextScene extends Phaser.Scene {
 
       this.scene.stop('TextScene');
       // 玩家寶可夢攻擊力比例換算
-      const actualPower = this.attackEffect.power * 0.35;
-      window.GameObjects.wildPokemon.currentHp -= actualPower;
-      eventsCenter.emit('update-opponent-hp');
+      const actualPower = this.opponentAttackEffect.power * 0.35;
+      
+      //TODO: 替換成玩家當前選擇的pokemon
+      window.GameObjects.playerPokemonTeam[0].currentHp -= actualPower;
+      eventsCenter.emit('update-player-hp');
     }
 
     if (isEndBattle) {

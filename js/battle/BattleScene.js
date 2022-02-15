@@ -6,6 +6,7 @@ export default class BattleScene extends Phaser.Scene {
     this.wildPokemonInfo = {};
     this.wildPokemonName = '';
     this.playerPokemon = null;
+    this.winner = null;
   }
 
   preload() {
@@ -170,9 +171,17 @@ export default class BattleScene extends Phaser.Scene {
     this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
       eventsCenter.off('update-opponent-hp', this.updateOpponentHp, this);
     });
+    eventsCenter.on('update-player-hp', this.updatePlayerHp, this);
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      eventsCenter.off('update-player-hp', this.updatePlayerHp, this);
+    });
     eventsCenter.on('play-summonpokemon-anim', this.summonPokemon, this);
     this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
       eventsCenter.off('play-summonpokemon-anim', this.summonPokemon, this);
+    });
+    eventsCenter.on('opponent-attack', this.opponentAttack, this);
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      eventsCenter.off('opponent-attack', this.opponentAttack, this);
     });
     eventsCenter.on('end-battle-anim', this.endBattleAnim, this);
     this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -199,22 +208,41 @@ export default class BattleScene extends Phaser.Scene {
 
   endBattleAnim() {
     //擊敗對手動畫
-    this.tweens.add({
-      targets: this.opponentPokemon,
-      alpha: 0,
-      duration: 500,
-      delay: 500,
-      ease: 'Cubic.easeOut',
-      onComplete: () => {
-        this.scene.stop('TextScene');
-        this.opponentPokemon.destroy();
-        this.scene.stop('BattleScene');
-        this.scene.stop('BattleMenu');
-        this.scene.run('WildScene');
-        this.input.keyboard.removeAllKeys();
-        window.GameObjects.isEndBattle = false;
-      },
-    });
+    if (this.winner === 'player') {
+      this.tweens.add({
+        targets: this.opponentPokemon,
+        alpha: 0,
+        duration: 500,
+        delay: 500,
+        ease: 'Cubic.easeOut',
+        onComplete: () => {
+          this.scene.stop('TextScene');
+          this.opponentPokemon.destroy();
+          this.scene.stop('BattleScene');
+          this.scene.stop('BattleMenu');
+          this.scene.run('WildScene');
+          this.input.keyboard.removeAllKeys();
+          window.GameObjects.isEndBattle = false;
+        },
+      });
+    } else {
+      this.tweens.add({
+        targets: this.playerPokemon,
+        alpha: 0,
+        duration: 500,
+        delay: 500,
+        ease: 'Cubic.easeOut',
+        onComplete: () => {
+          this.scene.stop('TextScene');
+          this.opponentPokemon.destroy();
+          this.scene.stop('BattleScene');
+          this.scene.stop('BattleMenu');
+          this.scene.run('WildScene');
+          this.input.keyboard.removeAllKeys();
+          window.GameObjects.isEndBattle = false;
+        },
+      });
+    }
   }
 
   openingScene() {
@@ -390,6 +418,7 @@ export default class BattleScene extends Phaser.Scene {
                 text: `你擊敗了野生的${this.wildPokemonName}`,
                 wildPokemonImage: this.opponentPokemon,
               });
+              this.winner = 'player';
 
               return;
             }
@@ -401,18 +430,86 @@ export default class BattleScene extends Phaser.Scene {
               duration: 500,
               onComplete: () => {
                 // 換成對手回合
-                // window.GameObjects.whosTurn = 'opponent';
-                this.scene.run('BattleMenu');
+                window.GameObjects.whosTurn = 'opponent';
+                // this.scene.run('TextScene')
+                this.opponentAttack(this.wildPokemonInfo);
+
+                // this.scene.run('BattleMenu');
               },
             });
-            // this.opponentHpBar.displayWidth =
-            //   143 * (opponentCurrentHp / this.opponentMaxHp);
-            // // 換成對手回合
-            // // window.GameObjects.whosTurn = 'opponent';
-            // this.scene.run('BattleMenu');
           },
         });
       },
+    });
+  }
+
+  updatePlayerHp() {
+    this.tweens.add({
+      targets: this.opponentPokemon,
+      x: 430,
+      yoyo: true,
+      duration: 100,
+      ease: 'Cubic.easeOut',
+      onComplete: () => {
+        this.tweens.add({
+          targets: this.playerPokemon,
+          alpha: 0,
+          yoyo: true,
+          duration: 300,
+          repeat: 1,
+          ease: 'Cubic.easeOut',
+          onComplete: () => {
+            const playerCurrentHp = window.GameObjects.playerPokemonTeam[0].currentHp;
+            if (playerCurrentHp <= 0) {
+              // 結束戰鬥
+              this.playerHpBar.displayWidth = 0;
+              window.GameObjects.isEndBattle = true;
+              this.scene.run('TextScene', {
+                text: `你被野生的${this.wildPokemonName}擊敗了!`,
+              });
+              this.winner = 'opponent';
+
+              return;
+            }
+
+            this.tweens.add({
+              targets: this.playerHpBar,
+              displayWidth: 143 * (playerCurrentHp / this.playerMaxHp),
+              ease: 'Sine.easeOut',
+              duration: 500,
+              onComplete: () => {
+                // 換成玩家回合
+                window.GameObjects.whosTurn = 'player';
+                this.scene.run('BattleMenu');
+              },
+            });
+          },
+        });
+      },
+    });
+  }
+
+  opponentAttack(opponentPokemon) {
+    console.log(opponentPokemon);
+    const randomNum = Math.floor(Math.random() * 4);
+    let currentMove = opponentPokemon.moves[randomNum];
+    let moveName = currentMove.names.find(name => name.language.name === 'zh-Hant').name;
+    const opponentAttackEffect = {
+      power: currentMove.power,
+      accuracy: currentMove.accuracy,
+      damageClass: currentMove.damage_class.name,
+    };
+
+    // 若pp為0 則選擇其他招式
+    if (opponentPokemon.movePP[moveName] === 0) {
+      currentMove = Object.keys(opponentPokemon.movePP).find(move => move.pp !== 0);
+      moveName = currentMove.names.find(name => name.language.name === 'zh-Hant');
+    }
+    opponentPokemon.movePP[moveName] -= 1;
+
+    this.scene.run('TextScene', {
+      text: `野生的${this.wildPokemonName}使用了${moveName}!`,
+      opponentAttackEffect,
     });
   }
 }

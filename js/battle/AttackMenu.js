@@ -74,14 +74,6 @@ export default class AttackMenu extends Phaser.Scene {
     const currentPP = this.movePP[this.firstMoveName];
     const firstMovePP = this.pokemonInfo.moves[0].pp;
 
-    // if (this.movePP[this.firstMoveName] === undefined) {
-    //   // first move pp and attack type
-    //   currentPP = this.pokemonInfo.moves[0].pp;
-    //   this.movePP[this.firstMoveName] = currentPP;
-    // } else {
-    //   // 更新pp值
-    //   currentPP = this.movePP[this.firstMoveName];
-    // }
 
     this.PPText = this.add.text(550, 510, `PP: ${currentPP}/${firstMovePP}`, {
       font: '25px monospace',
@@ -163,7 +155,7 @@ export default class AttackMenu extends Phaser.Scene {
 
       window.GameObjects.playerPokemonTeam[0].movePP[this.currentSelectedMove] -= 1;
 
-      const attackEffect = {
+      const playerAttackEffect = {
         power: currentMovePower,
         accuracy: currentMoveAccuracy,
         damageClass: currentMoveDamageClass,
@@ -172,7 +164,7 @@ export default class AttackMenu extends Phaser.Scene {
       this.scene.run('TextScene', {
         fromScene: 'AttackMenu',
         text: `${this.pokemonName}使用了${this.currentSelectedMove}!`,
-        attackEffect,
+        playerAttackEffect,
       });
     }
   }
