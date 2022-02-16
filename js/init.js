@@ -4,6 +4,7 @@ import BattleScene from './battle/BattleScene.js';
 import BattleMenu from './battle/BattleMenu.js';
 import TextScene from './battle/TextScene.js';
 import AttackScene from './battle/AttackMenu.js';
+import SaveMenu from './maps/SaveMenu.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -24,15 +25,18 @@ const config = {
     BattleMenu,
     TextScene,
     AttackScene,
+    SaveMenu,
   ],
 };
 
 const game = new Phaser.Game(config);
 
 window.GameObjects = {
+  currentMapInfo: {},
   // 決定誰的回合
   whosTurn: 'player',
   isEndBattle: false,
   wildPokemon: {},
-  playerPokemonTeam: []
+  playerPokemonTeam: [],
+  items: [],
 }

@@ -213,8 +213,6 @@ export default class TextScene extends Phaser.Scene {
 
     // 對手進攻回合
     if (whosTurn === 'opponent' && !isEndBattle) {
-      console.log('opponent attack');
-      console.log(this.opponentAttackEffect);
       if (this.opponentAttackEffect.damageClass === 'status') {
         window.GameObjects.whosTurn = 'player';
         this.scene.stop('TextScene');

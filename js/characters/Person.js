@@ -67,10 +67,21 @@ export default class Person {
 
     this.cursors = this.scene.input.keyboard.createCursorKeys();
     // use W,A,S,D
-    this.keyA = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-    this.keyS = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-    this.keyD = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-    this.keyW = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    this.keyA = this.scene.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.A,
+    );
+    this.keyS = this.scene.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.S,
+    );
+    this.keyD = this.scene.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.D,
+    );
+    this.keyW = this.scene.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.W,
+    );
+    this.keyEsc = this.scene.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.ESC,
+    );
 
     // 是否移動
     this.isMoving = false;
@@ -100,6 +111,7 @@ export default class Person {
       sprite.body.setVelocityY(speed);
     }
 
+
     // 控制移動速度
     sprite.body.velocity.normalize().scale(speed);
 
@@ -119,6 +131,29 @@ export default class Person {
     } else {
       sprite.anims.stop();
       this.isMoving = false;
+    }
+
+    // 開啟選單
+    if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
+      const currentMapScene = this.scene.scene.key;
+      const initMapActive = this.scene.scene.isActive('InitMapScene');
+      const wildMapActive = this.scene.scene.isActive('WildScene');
+
+
+      const currentMapInfo = {
+        player: sprite,
+        currentMapScene,
+      };
+      
+      if (initMapActive) {
+        this.scene.scene.pause('InitMapScene');
+        this.scene.scene.run('SaveMenu', { currentMapInfo });
+      }
+
+      if (wildMapActive) {
+        this.scene.scene.pause('WildScene');
+        this.scene.scene.run('SaveMenu', { currentMapInfo });
+      }
     }
   }
 

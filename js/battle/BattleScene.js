@@ -490,7 +490,6 @@ export default class BattleScene extends Phaser.Scene {
   }
 
   opponentAttack(opponentPokemon) {
-    console.log(opponentPokemon);
     const randomNum = Math.floor(Math.random() * 4);
     let currentMove = opponentPokemon.moves[randomNum];
     let moveName = currentMove.names.find(name => name.language.name === 'zh-Hant').name;

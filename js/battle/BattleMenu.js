@@ -75,10 +75,12 @@ export default class BattleMenu extends Phaser.Scene {
       if (this.currentSelectedMenu === 'bag') {
         this.menuPointer.setPosition(533, 524);
         this.currentSelectedMenu = 'attack';
+        return;
       }
       if (this.currentSelectedMenu === 'run') {
         this.menuPointer.setPosition(533, 574);
         this.currentSelectedMenu = 'pokemon';
+        return;
       }
     }
     if (Phaser.Input.Keyboard.JustDown(this.cursors.right) || Phaser.Input.Keyboard.JustDown(this.keyD)) {
@@ -86,10 +88,12 @@ export default class BattleMenu extends Phaser.Scene {
       if (this.currentSelectedMenu === 'attack') {
         this.menuPointer.setPosition(683, 524);
         this.currentSelectedMenu = 'bag';
+        return;
       }
       if (this.currentSelectedMenu === 'pokemon') {
         this.menuPointer.setPosition(683, 574);
         this.currentSelectedMenu = 'run';
+        return;
       }
     }
     if (Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.keyW)) {
@@ -97,10 +101,12 @@ export default class BattleMenu extends Phaser.Scene {
       if (this.currentSelectedMenu === 'pokemon') {
         this.menuPointer.setPosition(533, 524);
         this.currentSelectedMenu = 'attack';
+        return;
       }
       if (this.currentSelectedMenu === 'run') {
         this.menuPointer.setPosition(683, 524);
         this.currentSelectedMenu = 'bag';
+        return;
       }
     }
     if (Phaser.Input.Keyboard.JustDown(this.cursors.down) || Phaser.Input.Keyboard.JustDown(this.keyS)) {
@@ -108,10 +114,12 @@ export default class BattleMenu extends Phaser.Scene {
       if (this.currentSelectedMenu === 'attack') {
         this.menuPointer.setPosition(533, 574);
         this.currentSelectedMenu = 'pokemon';
+        return;
       }
       if (this.currentSelectedMenu === 'bag') {
         this.menuPointer.setPosition(683, 574);
         this.currentSelectedMenu = 'run';
+        return;
       }
     }
   }

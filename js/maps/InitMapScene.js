@@ -22,11 +22,11 @@ export default class InitMapScene extends Phaser.Scene {
     );
   }
 
-  async create(fromMap) {
+  async create(config) {
 
     // 判斷是否從其他地圖切換過來，改變player sprite direction
     let playerDirection = 'player-front-walk.002.png'; // default
-    if (Object.keys(fromMap).length) {
+    if (config.fromMap) {
      playerDirection = 'player-back-walk.002.png';
     }
 
@@ -43,18 +43,23 @@ export default class InitMapScene extends Phaser.Scene {
     // 確保上層圖壓過 worldLayer
     aboveLayer.setDepth(10);
 
-    // 物件起始位置 （玩家起始位置）
-    const playerPosition = this.map.findObject(
-      'Objects',
-      (obj) => obj.name === 'Player Position',
-    );
+    // 物件起始位置 （玩家起始位置
+    // 若載入存檔，優先使用存檔位置
+    let playerPositionX = null;
+    let playerPositionY = null;
+
+    if (config.playerPosition) {
+      playerPositionX = config.playerPosition.x;
+      playerPositionY = config.playerPosition.y;
+      playerDirection = config.playerPosition.direction;
+    }
 
     // 創建玩家
     this.player = new Person(
       this,
       'player',
-      null,
-      null,
+      playerPositionX,
+      playerPositionY,
       playerDirection,
     );
 
@@ -78,7 +83,7 @@ export default class InitMapScene extends Phaser.Scene {
     // 到達特定地點後 切換地圖
     const isChangeMap = this.isChangeMap('Goto Wild');
     if (isChangeMap) {
-      this.destroy();
+      this.scene.stop('InitMapScene');
       // 切換地圖
       // this.scene.sleep('InitMapScene').run('WildScene');
       this.scene.run('WildScene');

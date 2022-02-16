@@ -206,6 +206,7 @@ export default class AttackMenu extends Phaser.Scene {
 
       this.PPText.text = `PP: ${currentPP}/${movePP}`;
       this.damageTypeText.text = `類型/${damageType}`;
+      return;
     }
 
     if (
@@ -238,6 +239,7 @@ export default class AttackMenu extends Phaser.Scene {
 
       this.PPText.text = `PP: ${currentPP}/${movePP}`;
       this.damageTypeText.text = `類型/${damageType}`;
+      return;
     }
 
     if (
@@ -270,6 +272,7 @@ export default class AttackMenu extends Phaser.Scene {
 
       this.PPText.text = `PP: ${currentPP}/${movePP}`;
       this.damageTypeText.text = `類型/${damageType}`;
+      return;
     }
 
     if (
@@ -302,6 +305,7 @@ export default class AttackMenu extends Phaser.Scene {
 
       this.PPText.text = `PP: ${currentPP}/${movePP}`;
       this.damageTypeText.text = `類型/${damageType}`;
+      return;
     }
   }
 }

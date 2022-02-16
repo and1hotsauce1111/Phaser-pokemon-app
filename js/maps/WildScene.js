@@ -25,7 +25,7 @@ export default class WildScene extends Phaser.Scene {
     );
   }
 
-  create() {
+  create(config) {
     this.map = this.make.tilemap({ key: 'WildMap' });
 
     this.tileset = this.map.addTilesetImage(
@@ -44,17 +44,33 @@ export default class WildScene extends Phaser.Scene {
     aboveLayer.setDepth(10);
 
     // 物件起始位置 （玩家起始位置）
+    // 若載入存檔，優先使用存檔位置
+    let playerPositionX = null;
+    let playerPositionY = null;
+    let direction = null;
+
     const playerPosition = this.map.findObject(
       'Objects',
       (obj) => obj.name === 'Player Position',
     );
 
+    if (config.playerPosition) {
+      playerPositionX = config.playerPosition.x;
+      playerPositionY = config.playerPosition.y;
+      direction = config.playerPosition.direction;
+    } else {
+      playerPositionX = playerPosition.x;
+      playerPositionY = playerPosition.y;
+    }
+
+
     // 創建玩家
     this.player = new Person(
       this,
       'player',
-      playerPosition.x,
-      playerPosition.y,
+      playerPositionX,
+      playerPositionY,
+      direction,
     );
 
     // 添加障礙物
