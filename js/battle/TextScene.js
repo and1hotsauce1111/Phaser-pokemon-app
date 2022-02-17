@@ -1,8 +1,8 @@
-import { eventsCenter } from '../EventsCenter.js';
+import { eventsCenter } from "../EventsCenter.js";
 
 export default class TextScene extends Phaser.Scene {
   constructor() {
-    super({ key: 'TextScene' });
+    super({ key: "TextScene" });
     this.showText = null;
     this.endText = false;
     this.wildPokemon = {};
@@ -10,11 +10,13 @@ export default class TextScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('brush', '/assets/images/brush2.png');
+    this.load.image("brush", "/assets/images/brush2.png");
   }
 
   create(config) {
     this.fromScene = config.fromScene;
+    this.gameStatus = config.gameStatus;
+
     if (Object.keys(window.GameObjects.wildPokemon).length) {
       this.wildPokemon = window.GameObjects.wildPokemon;
     }
@@ -33,8 +35,9 @@ export default class TextScene extends Phaser.Scene {
     }
 
     const textStyle = {
-      font: '22px monospace',
+      font: "22px monospace",
       lineSpace: 4,
+      color: config.color || "#fff",
     };
     this.showText = config.text;
     this.add
@@ -46,15 +49,16 @@ export default class TextScene extends Phaser.Scene {
       Phaser.GameObjects.GetTextSize(
         this.addText,
         this.addText.getTextMetrics(),
-        this.showText.split('\n'),
+        this.showText.split("\n")
       );
     const totalLineHeight = lineHeight + lineSpacing;
 
+    const pointerColor = config.pointerColor || 0xffffff;
     this.textPointer = this.add.polygon(
       750,
       570,
       [0, 0, 18, 0, 9, 18],
-      0xffffff,
+      pointerColor,
     );
     this.tweens.add({
       targets: this.textPointer,
@@ -62,7 +66,7 @@ export default class TextScene extends Phaser.Scene {
       duration: 500,
       yoyo: true,
       repeat: -1,
-      ease: 'Sine.easeInOut',
+      ease: "Sine.easeInOut",
     });
 
     this.add
@@ -76,7 +80,7 @@ export default class TextScene extends Phaser.Scene {
         0,
         0,
         0xffffff,
-        0.5,
+        0.5
       )
       .setOrigin(0, 0)
       .setVisible(false);
@@ -87,7 +91,7 @@ export default class TextScene extends Phaser.Scene {
         width: this.addText.width,
         height: this.addText.height,
       },
-      false,
+      false
     );
     const mask = rt.createBitmapMask();
 
@@ -115,13 +119,13 @@ export default class TextScene extends Phaser.Scene {
     path.draw(graphics);
 
     this.brush = this.add
-      .follower(path, 0, 0, 'brush')
+      .follower(path, 0, 0, "brush")
       .setDisplaySize(48, 48)
       .setAlpha(0.5)
       .setVisible(false)
       .startFollow({
         duration: 200 * this.showText.length,
-        ease: 'Power2.easeInOut',
+        ease: "Power2.easeInOut",
         onUpdate: () => {
           rt.draw(this.brush);
         },
@@ -138,10 +142,10 @@ export default class TextScene extends Phaser.Scene {
 
   init() {
     this.keyEnter = this.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.ENTER,
+      Phaser.Input.Keyboard.KeyCodes.ENTER
     );
     this.keySpace = this.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.SPACE,
+      Phaser.Input.Keyboard.KeyCodes.SPACE
     );
   }
 
@@ -157,10 +161,16 @@ export default class TextScene extends Phaser.Scene {
         return;
       }
 
+      if (this.fromScene === "SaveMenu") {
+        this.updateAction();
+      }
+
       // 延遲顯示menu
       this.timer = this.time.addEvent({
         delay: 300,
         callback: () => {
+          console.log(this.fromScene);
+
           this.endText = false;
           this.updateAction();
         },
@@ -174,11 +184,11 @@ export default class TextScene extends Phaser.Scene {
     const isEndBattle = window.GameObjects.isEndBattle;
 
     // 若為戰鬥開場，text message結束直接顯示 battle menu
-    if (this.fromScene === 'BattleScene') {
+    if (this.fromScene === "BattleScene") {
       if (!this.completeText) {
         this.completeText = true;
-        this.scene.start('TextScene', {
-          fromScene: 'BattleScene',
+        this.scene.start("TextScene", {
+          fromScene: "BattleScene",
           text: `去吧！${
             this.playerCurrentPokemon.zh_Hant_name ||
             this.playerCurrentPokemon.name
@@ -188,51 +198,74 @@ export default class TextScene extends Phaser.Scene {
         return;
       }
       // 添加summon pokemon animation
-      eventsCenter.emit('play-summonpokemon-anim');
-      this.scene.stop('TextScene');
+      eventsCenter.emit("play-summonpokemon-anim");
+      this.scene.stop("TextScene");
       this.completeText = false;
     }
 
     // 玩家發動攻擊後
-    if (whosTurn === 'player' && this.fromScene !== 'BattleScene' && !isEndBattle) {
+    if (
+      whosTurn === "player" &&
+      this.fromScene !== "BattleScene" &&
+      this.fromScene !== "SaveMenu" &&
+      !isEndBattle
+    ) {
       // damage_class !== 'status' 時才顯示攻擊效果
-      if (this.playerAttackEffect.damageClass === 'status') {
-        this.scene.stop('TextScene');
+      if (this.playerAttackEffect.damageClass === "status") {
+        this.scene.stop("TextScene");
         // 對方進攻
-        window.GameObjects.whosTurn = 'opponent';
-        eventsCenter.emit('opponent-attack', this.wildPokemon);
+        window.GameObjects.whosTurn = "opponent";
+        eventsCenter.emit("opponent-attack", this.wildPokemon);
         return;
       }
 
-      this.scene.stop('TextScene');
+      this.scene.stop("TextScene");
       // 玩家寶可夢攻擊力比例換算
       const actualPower = this.playerAttackEffect.power * 0.35;
       window.GameObjects.wildPokemon.currentHp -= actualPower;
-      eventsCenter.emit('update-opponent-hp');
+      eventsCenter.emit("update-opponent-hp");
     }
 
     // 對手進攻回合
-    if (whosTurn === 'opponent' && !isEndBattle) {
-      if (this.opponentAttackEffect.damageClass === 'status') {
-        window.GameObjects.whosTurn = 'player';
-        this.scene.stop('TextScene');
-        this.scene.run('BattleMenu');
+    if (whosTurn === "opponent" && !isEndBattle) {
+      if (this.opponentAttackEffect.damageClass === "status") {
+        window.GameObjects.whosTurn = "player";
+        this.scene.stop("TextScene");
+        this.scene.run("BattleMenu");
         return;
       }
 
-      this.scene.stop('TextScene');
+      this.scene.stop("TextScene");
       // 玩家寶可夢攻擊力比例換算
       const actualPower = this.opponentAttackEffect.power * 0.35;
-      
+
       //TODO: 替換成玩家當前選擇的pokemon
       window.GameObjects.playerPokemonTeam[0].currentHp -= actualPower;
-      eventsCenter.emit('update-player-hp');
+      eventsCenter.emit("update-player-hp");
     }
 
+    // 戰鬥結束
     if (isEndBattle) {
-      eventsCenter.emit('end-battle-anim');
+      eventsCenter.emit("end-battle-anim");
     }
 
-    this.timer.remove();
+    // 關閉存/讀檔訊息
+    if (this.fromScene === "SaveMenu") {
+      const saveMenu = this.scene.manager.keys['SaveMenu'];
+
+      if (this.gameStatus === 'save') {
+        this.scene.stop("TextScene");
+        saveMenu.textArea.destroy();
+        this.scene.run('SaveMenu');
+      }
+
+      if (this.gameStatus === 'load') {
+        this.scene.stop("TextScene");
+        saveMenu.textArea.destroy();
+        saveMenu.loadGame();
+      }
+    }
+
+    if (this.timer) this.timer.remove();
   }
 }
