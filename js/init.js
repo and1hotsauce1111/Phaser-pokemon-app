@@ -5,6 +5,7 @@ import BattleMenu from './battle/BattleMenu.js';
 import TextScene from './battle/TextScene.js';
 import AttackScene from './battle/AttackMenu.js';
 import SaveMenu from './maps/SaveMenu.js';
+import PokemonTeamScene from './maps/PokemonTeamScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -26,6 +27,7 @@ const config = {
     TextScene,
     AttackScene,
     SaveMenu,
+    PokemonTeamScene,
   ],
 };
 

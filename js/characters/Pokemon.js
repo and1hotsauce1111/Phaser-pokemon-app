@@ -76,8 +76,8 @@ export default class Pokemon {
       ? zhHantName.name
       : '';
     pokemonInfo.name = info.name;
+    pokemonInfo.level = 5;
     // get pokemon moves
-    // pokemonInfo.moves = info.moves.slice(0, 4);
     const movesArray = info.moves.slice(0, 4);
     Promise.all(
       movesArray.map((move) => fetch(move.move.url).then((res) => res.json())),

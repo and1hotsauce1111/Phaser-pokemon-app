@@ -65,6 +65,8 @@ export default class SaveMenu extends Phaser.Scene {
     if (config.currentMapInfo) {
       this.currentMapInfo = config.currentMapInfo;
     }
+
+    console.log(window.GameObjects);
   }
 
   updateSelectedMenu() {
@@ -127,6 +129,7 @@ export default class SaveMenu extends Phaser.Scene {
       Phaser.Input.Keyboard.JustDown(this.keyEnter)
     ) {
       if (this.currentSelectedMenu === "team") {
+        this.scene.run('PokemonTeamScene');
       }
       if (this.currentSelectedMenu === "item") {
       }
