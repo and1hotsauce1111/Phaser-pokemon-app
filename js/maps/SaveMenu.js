@@ -129,6 +129,7 @@ export default class SaveMenu extends Phaser.Scene {
       Phaser.Input.Keyboard.JustDown(this.keyEnter)
     ) {
       if (this.currentSelectedMenu === "team") {
+        this.scene.stop('SaveMenu');
         this.scene.run('PokemonTeamScene');
       }
       if (this.currentSelectedMenu === "item") {

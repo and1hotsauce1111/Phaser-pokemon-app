@@ -66,7 +66,13 @@ export default class InitMapScene extends Phaser.Scene {
     // 若無存擋則獲取玩家第一隻pokemon
     const pokemon = new Pokemon();
     await pokemon.getPlayerInitPokemon();
-    window.GameObjects.playerPokemonTeam.push(pokemon.playerInitPokemon);
+    // window.GameObjects.playerPokemonTeam.push(pokemon.playerInitPokemon);
+    for (let i = 0; i < 6;i++) {
+      const copy = JSON.parse(JSON.stringify(pokemon));
+      const name = `${copy.playerInitPokemon.zh_Hant_name + parseInt(i + 1)}`;
+      copy.playerInitPokemon.zh_Hant_name = name;
+      window.GameObjects.playerPokemonTeam.push(copy.playerInitPokemon);
+    }
 
 
     // 添加障礙物
