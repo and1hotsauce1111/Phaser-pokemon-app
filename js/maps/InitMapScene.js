@@ -1,42 +1,49 @@
-import Person from '../characters/Person.js';
-import Pokemon from '../characters/Pokemon.js';
+import Person from "../characters/Person.js";
+import Pokemon from "../characters/Pokemon.js";
 
 export default class InitMapScene extends Phaser.Scene {
   constructor() {
     // 帶入參數作為InitMapScene的key值
-    super({key: 'InitMapScene'});
+    super({ key: "InitMapScene" });
     this.map = null;
   }
 
   preload() {
     this.load.image(
-      'tiles',
-      '/assets/tilesets/tuxmon-sample-32px-extruded.png',
+      "tiles",
+      "/assets/tilesets/tuxmon-sample-32px-extruded.png"
     );
-    this.load.tilemapTiledJSON('InitMap', '/assets/tilemaps/init-map.json');
+    this.load.tilemapTiledJSON("InitMap", "/assets/tilemaps/init-map.json");
 
     this.load.atlas(
-      'player',
-      '/assets/atlas/player.png',
-      '/assets/atlas/player.json',
+      "player",
+      "/assets/atlas/player.png",
+      "/assets/atlas/player.json"
     );
   }
 
   async create(config) {
-
-    // 判斷是否從其他地圖切換過來，改變player sprite direction
-    let playerDirection = 'player-front-walk.002.png'; // default
-    if (config.fromMap) {
-     playerDirection = 'player-back-walk.002.png';
+    const saveData = window.localStorage.getItem("pokemon-save-data");
+    if (saveData) {
+      window.GameObjects = JSON.parse(saveData);
     }
 
-    this.map = this.make.tilemap({ key: 'InitMap' });
+    // 判斷是否從其他地圖切換過來，改變player sprite direction
+    let playerDirection = "player-front-walk.002.png"; // default
+    if (config.fromMap) {
+      playerDirection = "player-back-walk.002.png";
+    }
 
-    const tileset = this.map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+    this.map = this.make.tilemap({ key: "InitMap" });
 
-    const belowLayer = this.map.createLayer('Below Player', tileset, 0, 0);
-    const worldLayer = this.map.createLayer('World', tileset, 0, 0);
-    const aboveLayer = this.map.createLayer('Above Player', tileset, 0, 0);
+    const tileset = this.map.addTilesetImage(
+      "tuxmon-sample-32px-extruded",
+      "tiles"
+    );
+
+    const belowLayer = this.map.createLayer("Below Player", tileset, 0, 0);
+    const worldLayer = this.map.createLayer("World", tileset, 0, 0);
+    const aboveLayer = this.map.createLayer("Above Player", tileset, 0, 0);
 
     worldLayer.setCollisionByProperty({ collides: true });
 
@@ -57,23 +64,24 @@ export default class InitMapScene extends Phaser.Scene {
     // 創建玩家
     this.player = new Person(
       this,
-      'player',
+      "player",
       playerPositionX,
       playerPositionY,
-      playerDirection,
+      playerDirection
     );
 
     // 若無存擋則獲取玩家第一隻pokemon
-    const pokemon = new Pokemon();
-    await pokemon.getPlayerInitPokemon();
-    // window.GameObjects.playerPokemonTeam.push(pokemon.playerInitPokemon);
-    for (let i = 0; i < 6;i++) {
-      const copy = JSON.parse(JSON.stringify(pokemon));
-      const name = `${copy.playerInitPokemon.zh_Hant_name + parseInt(i + 1)}`;
-      copy.playerInitPokemon.zh_Hant_name = name;
-      window.GameObjects.playerPokemonTeam.push(copy.playerInitPokemon);
+    if (!saveData) {
+      const pokemon = new Pokemon();
+      await pokemon.getPlayerInitPokemon();
+      // window.GameObjects.playerPokemonTeam.push(pokemon.playerInitPokemon);
+      for (let i = 0; i < 6; i++) {
+        const copy = JSON.parse(JSON.stringify(pokemon));
+        const name = `${copy.playerInitPokemon.zh_Hant_name + parseInt(i + 1)}`;
+        copy.playerInitPokemon.zh_Hant_name = name;
+        window.GameObjects.playerPokemonTeam.push(copy.playerInitPokemon);
+      }
     }
-
 
     // 添加障礙物
     this.collider = this.physics.add.collider(this.player.sprite, worldLayer);
@@ -87,12 +95,12 @@ export default class InitMapScene extends Phaser.Scene {
   update(time, delta) {
     this.player.update();
     // 到達特定地點後 切換地圖
-    const isChangeMap = this.isChangeMap('Goto Wild');
+    const isChangeMap = this.isChangeMap("Goto Wild");
     if (isChangeMap) {
-      this.scene.stop('InitMapScene');
+      this.scene.stop("InitMapScene");
       // 切換地圖
       // this.scene.sleep('InitMapScene').run('WildScene');
-      this.scene.run('WildScene');
+      this.scene.run("WildScene");
     }
   }
 
@@ -102,12 +110,14 @@ export default class InitMapScene extends Phaser.Scene {
     this.collider.world.removeCollider();
   }
 
-
   isChangeMap(mapName) {
     // 避免destroy後 找不到player
     if (!this.player.sprite.body) return;
 
-    const changeMapPosition = this.map.findObject('Objects', obj => obj.name === mapName);
+    const changeMapPosition = this.map.findObject(
+      "Objects",
+      (obj) => obj.name === mapName
+    );
     const changeMapPositionX = Math.abs(changeMapPosition.x);
     const changeMapPositionY = Math.abs(changeMapPosition.y);
     const changeMapPositionWidth = Math.abs(changeMapPosition.width);
@@ -116,10 +126,14 @@ export default class InitMapScene extends Phaser.Scene {
     const changeMapAreaY = changeMapPositionY + changeMapPositionHeight;
     const currentPlayerPositionX = this.player.sprite.body.x;
     const currentPlayerPositionY = this.player.sprite.body.y;
-    const inChangeMapAreaX = currentPlayerPositionX >= changeMapPositionX && currentPlayerPositionX <= changeMapAreaX;
-    const inChangeMapAreaY = currentPlayerPositionY >= changeMapPositionY && currentPlayerPositionY <= changeMapAreaY;
+    const inChangeMapAreaX =
+      currentPlayerPositionX >= changeMapPositionX &&
+      currentPlayerPositionX <= changeMapAreaX;
+    const inChangeMapAreaY =
+      currentPlayerPositionY >= changeMapPositionY &&
+      currentPlayerPositionY <= changeMapAreaY;
 
-    if(inChangeMapAreaX && inChangeMapAreaY) return true;
+    if (inChangeMapAreaX && inChangeMapAreaY) return true;
 
     return false;
   }

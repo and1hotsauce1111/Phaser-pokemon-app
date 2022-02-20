@@ -65,8 +65,6 @@ export default class SaveMenu extends Phaser.Scene {
     if (config.currentMapInfo) {
       this.currentMapInfo = config.currentMapInfo;
     }
-
-    console.log(window.GameObjects);
   }
 
   updateSelectedMenu() {
@@ -188,6 +186,9 @@ export default class SaveMenu extends Phaser.Scene {
     // restart all scenes
     this.scene.stop(this.currentMapInfo.currentMapScene);
     this.scene.run(mapInfo.currentMap, { playerPosition });
+
+    // reset window object
+    window.GameObjects = JSON.parse(saveData);
   }
 
   saveGame() {

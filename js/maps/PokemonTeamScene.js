@@ -19,7 +19,6 @@ export default class PokemonTeamScene extends Phaser.Scene {
     this.load.image("hp-bar", "/assets/images/hp_bar.png");
     // pokemon icons
     for (let i = 0, len = this.pokemonTeamList.length; i < len; i++) {
-      console.log(i+1);
       const generation =
         this.pokemonTeamList[i].sprites.versions["generation-vii"];
       if (generation.icons) {
@@ -143,18 +142,12 @@ export default class PokemonTeamScene extends Phaser.Scene {
     /** 隊伍列表 */
     let listY = 43;
     for (let i = 1; i < 6; i++) {
-      this[`pokemonList${i + 1}Block`] = this.add.graphics();
-      this[`pokemonList${i + 1}Block`].setDepth(12);
-      this[`pokemonList${i + 1}Block`].fillStyle(0xe0e0e0, 1);
-      this[`pokemonList${i + 1}Block`].fillRoundedRect(330, listY, 410, 80, 8);
-      this[`pokemonList${i + 1}Block`].lineStyle(3, 0x666666, 1);
-      this[`pokemonList${i + 1}Block`].strokeRoundedRect(
-        330,
-        listY,
-        410,
-        80,
-        8
-      );
+      this[`pokemonList${i}Block`] = this.add.graphics();
+      this[`pokemonList${i}Block`].setDepth(12);
+      this[`pokemonList${i}Block`].fillStyle(0xe0e0e0, 1);
+      this[`pokemonList${i}Block`].fillRoundedRect(330, listY, 410, 80, 8);
+      this[`pokemonList${i}Block`].lineStyle(3, 0x666666, 1);
+      this[`pokemonList${i}Block`].strokeRoundedRect(330, listY, 410, 80, 8);
 
       this.createPokemonInfo(i, listY);
 
@@ -187,8 +180,6 @@ export default class PokemonTeamScene extends Phaser.Scene {
 
   createPokemonInfo(index, y) {
     // pokemon icon
-    // index+1 => 當前使用的pokemon icon為 index = 1
-    console.log(index);
     this[`pokemonIcon${index}`] = this.add
       .image(330, y + 30, `pokemon-icon-${index + 1}`)
       .setScale(4)
@@ -486,54 +477,51 @@ export default class PokemonTeamScene extends Phaser.Scene {
         this.createCursor(180, 280, "switch");
         // find current selected pokemon image index
         // this.currentUsePokemonIcon.texture.key
-        this.switchPokemonSprite = this.currentUsePokemonIcon.texture.key;
+        // this.switchPokemonSprite = this.currentUsePokemonIcon.texture.key;
         this.switchPokemonIndex = 0;
         return;
       }
 
       if (this.currentSelectedPokemonIndex === 1 && !this.switchHand) {
         this.createCursor(650, 120, "switch");
-        this.switchPokemonSprite = this[`pokemonIcon1`].texture.key;
+        // this.switchPokemonSprite = this[`pokemonIcon1`].texture.key;
         this.switchPokemonIndex = 1;
         return;
       }
 
       if (this.currentSelectedPokemonIndex === 2 && !this.switchHand) {
         this.createCursor(650, 210, "switch");
-        this.switchPokemonSprite = this[`pokemonIcon2`].texture.key;
+        // this.switchPokemonSprite = this[`pokemonIcon2`].texture.key;
         this.switchPokemonIndex = 2;
         return;
       }
 
       if (this.currentSelectedPokemonIndex === 3 && !this.switchHand) {
         this.createCursor(650, 300, "switch");
-        this.switchPokemonSprite = this[`pokemonIcon3`].texture.key;
+        // this.switchPokemonSprite = this[`pokemonIcon3`].texture.key;
         this.switchPokemonIndex = 3;
         return;
       }
 
       if (this.currentSelectedPokemonIndex === 4 && !this.switchHand) {
         this.createCursor(650, 390, "switch");
-        this.switchPokemonSprite = this[`pokemonIcon4`].texture.key;
+        // this.switchPokemonSprite = this[`pokemonIcon4`].texture.key;
         this.switchPokemonIndex = 4;
         return;
       }
 
       if (this.currentSelectedPokemonIndex === 5 && !this.switchHand) {
         this.createCursor(650, 480, "switch");
-        this.switchPokemonSprite = this[`pokemonIcon5`].texture.key;
+        // this.switchPokemonSprite = this[`pokemonIcon5`].texture.key;
         this.switchPokemonIndex = 5;
         return;
       }
 
       //確定更換隊伍順序
-      if (this.isSwitchPokemon) {
-        console.log(this.currentSelectedPokemonIndex, this.switchPokemonSprite);
-        this.sortPokemonTeam(
-          this.currentSelectedPokemonIndex,
-          this.switchPokemonIndex
-        );
-      }
+      this.sortPokemonTeam(
+        this.currentSelectedPokemonIndex,
+        this.switchPokemonIndex
+      );
     }
 
     //關閉選單
@@ -560,27 +548,23 @@ export default class PokemonTeamScene extends Phaser.Scene {
   }
 
   sortPokemonTeam(originIndex, switchIndex) {
-    console.log(originIndex, switchIndex);
-    // let temp = window.GameObjects.playerPokemonTeam[originIndex];
-    // window.GameObjects.playerPokemonTeam[originIndex] =
-    //   window.GameObjects.playerPokemonTeam[switchIndex];
-    // window.GameObjects.playerPokemonTeam[switchIndex] = temp;
-
-    console.log(this.switchPokemonSprite);
-
-    // 與當前使用pokemon交換
+    if (originIndex === switchIndex) {
+      // clear cursor
+      this.switchHand.destroy();
+      this.switchHand = null;
+      this.isSwitchPokemon = false;
+      return;
+    }
+    // 當前使用pokemon與列表中pokemon交換
     if (originIndex === 0) {
-      // this.currentUsePokemonIcon.destroy();
-      // this.currentUsePokemonIcon = this.add
-      //   .image(40, 120, `pokemon-icon-${switchIndex + 1}`)
-      //   .setScale(5)
-      //   .setDepth(13);
       this.currentUsePokemonIcon.setTexture(`pokemon-icon-${switchIndex + 1}`);
 
       const pokemonName =
         this.pokemonTeamList[switchIndex].zh_Hant_name ||
         this.pokemonTeamList[switchIndex].name;
       this.currentUsePokemonName.setText(pokemonName);
+
+      console.log("origin name", pokemonName);
 
       const level = this.pokemonTeamList[switchIndex].level;
       this.currentUsePokemonLevel.setText(`Lv${level}`);
@@ -601,7 +585,9 @@ export default class PokemonTeamScene extends Phaser.Scene {
       });
 
       // switch pokemon
-      this[`pokemonIcon${switchIndex}`].setTexture(this.switchPokemonSprite);
+      this[`pokemonIcon${switchIndex}`].setTexture(
+        this.currentUsePokemonIcon.texture.key
+      );
       const switchName =
         this.pokemonTeamList[0].zh_Hant_name || this.pokemonTeamList[0].name;
       this[`pokemonName${switchIndex}`].setText(switchName);
@@ -611,15 +597,78 @@ export default class PokemonTeamScene extends Phaser.Scene {
       this[`pokemonHpBarText${switchIndex}`].setText(
         `${this.pokemonTeamList[0].currentHp}/${this.pokemonTeamList[0].maxHp}`
       );
+    } else if (switchIndex === 0) {
+      // 列表中pokemon與使用中的pokemon交換
+      this.currentUsePokemonIcon.setTexture(`pokemon-icon-${originIndex + 1}`);
+      const pokemonName =
+        this.pokemonTeamList[originIndex].zh_Hant_name ||
+        this.pokemonTeamList[originIndex].name;
+      this.currentUsePokemonName.setText(pokemonName);
+
+      const level = this.pokemonTeamList[originIndex].level;
+      this.currentUsePokemonLevel.setText(`Lv${level}`);
+
+      this.currentUsePokemonHpText.setText(
+        `${this.pokemonTeamList[originIndex].currentHp}/${this.pokemonTeamList[originIndex].maxHp}`
+      );
+
+      this.tweens.add({
+        targets: this.currentUsePokemonIcon,
+        y: 125,
+        yoyo: true,
+        duration: 300,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+
+      this[`pokemonIcon${originIndex}`].setTexture(this.switchPokemonSprite);
+      const switchName =
+        this.pokemonTeamList[0].zh_Hant_name || this.pokemonTeamList[0].name;
+      this[`pokemonName${originIndex}`].setText(switchName);
+      const switchLevel = this.pokemonTeamList[0].level;
+      this[`pokemonLevel${originIndex}`].setText(`Lv${switchLevel}`);
+      // TODO: reset hp bar display width
+      this[`pokemonHpBarText${originIndex}`].setText(
+        `${this.pokemonTeamList[0].currentHp}/${this.pokemonTeamList[0].maxHp}`
+      );
+    } else {
+      // 列表中的pokemon交換
+      this[`pokemonIcon${originIndex}`].setTexture(this.switchPokemonSprite);
+      const switchName =
+        this.pokemonTeamList[switchIndex].zh_Hant_name ||
+        this.pokemonTeamList[switchIndex].name;
+      this[`pokemonName${originIndex}`].setText(switchName);
+      const switchLevel = this.pokemonTeamList[switchIndex].level;
+      this[`pokemonLevel${originIndex}`].setText(`Lv${switchLevel}`);
+      // TODO: reset hp bar display width
+      this[`pokemonHpBarText${originIndex}`].setText(
+        `${this.pokemonTeamList[switchIndex].currentHp}/${this.pokemonTeamList[switchIndex].maxHp}`
+      );
+
+      this[`pokemonIcon${switchIndex}`].setTexture(
+        `pokemon-icon-${originIndex + 1}`
+      );
+      const originName =
+        this.pokemonTeamList[originIndex].zh_Hant_name ||
+        this.pokemonTeamList[originIndex].name;
+      this[`pokemonName${switchIndex}`].setText(originName);
+      const originLevel = this.pokemonTeamList[originIndex].level;
+      this[`pokemonLevel${switchIndex}`].setText(`Lv${originLevel}`);
+      // TODO: reset hp bar display width
+      this[`pokemonHpBarText${switchIndex}`].setText(
+        `${this.pokemonTeamList[originIndex].currentHp}/${this.pokemonTeamList[originIndex].maxHp}`
+      );
     }
 
-    // TODO: 與列表中的pokemon交換
-
     // store in window object
-    let temp = window.GameObjects.playerPokemonTeam[originIndex];
-    window.GameObjects.playerPokemonTeam[originIndex] =
-      window.GameObjects.playerPokemonTeam[switchIndex];
-    window.GameObjects.playerPokemonTeam[switchIndex] = temp;
+    const originPokemon = JSON.parse(
+      JSON.stringify(window.GameObjects.playerPokemonTeam[originIndex])
+    );
+    const switchPokemon = JSON.parse(
+      JSON.stringify(window.GameObjects.playerPokemonTeam[switchIndex])
+    );
+    window.GameObjects.playerPokemonTeam[originIndex] = switchPokemon;
+    window.GameObjects.playerPokemonTeam[switchIndex] = originPokemon;
 
     // clear cursor
     this.switchHand.destroy();

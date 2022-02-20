@@ -169,8 +169,6 @@ export default class TextScene extends Phaser.Scene {
       this.timer = this.time.addEvent({
         delay: 300,
         callback: () => {
-          console.log(this.fromScene);
-
           this.endText = false;
           this.updateAction();
         },
