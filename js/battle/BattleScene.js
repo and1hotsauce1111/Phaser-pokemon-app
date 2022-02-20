@@ -194,6 +194,7 @@ export default class BattleScene extends Phaser.Scene {
   init() {
     const wildPokemon = window.GameObjects.wildPokemon;
     const playerPokemonTeam = window.GameObjects.playerPokemonTeam;
+
     if (Object.keys(wildPokemon)) {
       this.wildPokemonInfo = wildPokemon;
       this.wildPokemonName =

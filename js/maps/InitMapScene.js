@@ -74,12 +74,12 @@ export default class InitMapScene extends Phaser.Scene {
     if (!saveData) {
       const pokemon = new Pokemon();
       await pokemon.getPlayerInitPokemon();
-      // window.GameObjects.playerPokemonTeam.push(pokemon.playerInitPokemon);
+      // TODO: 移除假資料
       for (let i = 0; i < 6; i++) {
-        const copy = JSON.parse(JSON.stringify(pokemon));
-        const name = `${copy.playerInitPokemon.zh_Hant_name + parseInt(i + 1)}`;
-        copy.playerInitPokemon.zh_Hant_name = name;
-        window.GameObjects.playerPokemonTeam.push(copy.playerInitPokemon);
+        const initPokemon = JSON.parse(JSON.stringify(pokemon.playerInitPokemon));
+        const name = `${initPokemon.zh_Hant_name + parseInt(i + 1)}`;
+        initPokemon.zh_Hant_name = name;
+        window.GameObjects.playerPokemonTeam.push(initPokemon);
       }
     }
 

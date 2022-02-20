@@ -564,8 +564,6 @@ export default class PokemonTeamScene extends Phaser.Scene {
         this.pokemonTeamList[switchIndex].name;
       this.currentUsePokemonName.setText(pokemonName);
 
-      console.log("origin name", pokemonName);
-
       const level = this.pokemonTeamList[switchIndex].level;
       this.currentUsePokemonLevel.setText(`Lv${level}`);
 
