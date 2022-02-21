@@ -23,7 +23,8 @@ export default class TextScene extends Phaser.Scene {
     // 預設為玩家隊伍第一隻pokemon
     // TODO: 添加玩家隊伍列表後，更換為玩家當前選擇的pokemon
     if (window.GameObjects.playerPokemonTeam.length) {
-      this.playerCurrentPokemon = window.GameObjects.playerPokemonTeam[0];
+      // this.playerCurrentPokemon = window.GameObjects.playerPokemonTeam[0];
+      this.playerCurrentPokemon = window.GameObjects.playerPokemonTeam.find(pokemon => pokemon.currentHp > 0);
     }
 
     if (config.playerAttackEffect) {
@@ -238,7 +239,9 @@ export default class TextScene extends Phaser.Scene {
       const actualPower = this.opponentAttackEffect.power * 0.35;
 
       //TODO: 替換成玩家當前選擇的pokemon
-      window.GameObjects.playerPokemonTeam[0].currentHp -= actualPower;
+      // window.GameObjects.playerPokemonTeam[0].currentHp -= actualPower;
+      const targetIndex = window.GameObjects.playerPokemonTeam.findIndex(pokemon => pokemon.currentHp > 0);
+      window.GameObjects.playerPokemonTeam[targetIndex].currentHp -= actualPower;
       eventsCenter.emit("update-player-hp");
     }
 

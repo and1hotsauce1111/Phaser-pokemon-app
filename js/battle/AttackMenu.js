@@ -12,7 +12,9 @@ export default class AttackMenu extends Phaser.Scene {
 
   create() {
     if (window.GameObjects.playerPokemonTeam.length) {
-      this.pokemonInfo = window.GameObjects.playerPokemonTeam[0];
+      // this.pokemonInfo = window.GameObjects.playerPokemonTeam[0];
+      this.pokemonInfo = window.GameObjects.playerPokemonTeam.find(pokemon => pokemon.currentHp > 0);
+      console.log(this.pokemonInfo);
       this.pokemonName = this.pokemonInfo.zh_Hant_name || this.pokemonInfo.name;
     }
     this.createMenu();
@@ -69,7 +71,8 @@ export default class AttackMenu extends Phaser.Scene {
     });
 
     // 紀錄招式pp
-    this.movePP = window.GameObjects.playerPokemonTeam[0].movePP;
+    // this.movePP = window.GameObjects.playerPokemonTeam[0].movePP;
+    this.movePP = window.GameObjects.playerPokemonTeam.find(pokemon => pokemon.currentHp > 0).movePP;
     const damageType = this.pokemonInfo.moves[0].damage_class.name;
     const currentPP = this.movePP[this.firstMoveName];
     const firstMovePP = this.pokemonInfo.moves[0].pp;
@@ -153,7 +156,9 @@ export default class AttackMenu extends Phaser.Scene {
       const currentMoveAccuracy = currentMove.accuracy;
       const currentMoveDamageClass = currentMove.damage_class.name;
 
-      window.GameObjects.playerPokemonTeam[0].movePP[this.currentSelectedMove] -= 1;
+      // window.GameObjects.playerPokemonTeam[0].movePP[this.currentSelectedMove] -= 1;
+      const targetIndex = window.GameObjects.playerPokemonTeam.findIndex(pokemon => pokemon.currentHp > 0);
+      window.GameObjects.playerPokemonTeam[targetIndex].movePP[this.currentSelectedMove] -= 1;
 
       const playerAttackEffect = {
         power: currentMovePower,

@@ -202,8 +202,9 @@ export default class BattleScene extends Phaser.Scene {
     }
     if (playerPokemonTeam.length) {
       this.playerPokemonTeam = playerPokemonTeam;
+      const currentPokemon = this.playerPokemonTeam.find(pokemon => pokemon.currentHp > 0);
       this.playerPokemonName =
-        playerPokemonTeam[0].zh_Hant_name || playerPokemonTeam[0].name;
+      currentPokemon.zh_Hant_name || currentPokemon.name;
     }
   }
 
@@ -224,6 +225,7 @@ export default class BattleScene extends Phaser.Scene {
           this.scene.run('WildScene');
           this.input.keyboard.removeAllKeys();
           window.GameObjects.isEndBattle = false;
+          window.GameObjects.whosTurn = 'player';
         },
       });
     } else {
@@ -241,6 +243,7 @@ export default class BattleScene extends Phaser.Scene {
           this.scene.run('WildScene');
           this.input.keyboard.removeAllKeys();
           window.GameObjects.isEndBattle = false;
+          window.GameObjects.whosTurn = 'player';
         },
       });
     }
@@ -313,10 +316,13 @@ export default class BattleScene extends Phaser.Scene {
       this.scene.run('BattleMenu');
       // 顯示玩家pokemon image
       this.pokeball.setVisible(false);
+      console.log(this.playerPokemonTeam);
+
 
       /**
        * 預設顯示第一個
        * TODO: 替換成玩家選擇的pokemon
+       * 若當前pokemon被擊敗，則選擇下一個hp不為0的
        * 顯示玩家hp / exp */
       this.playerHp = this.add.image(1000, 420, 'battle-bar').setAlpha(0);
       this.playerHpBar = this.add
@@ -325,8 +331,10 @@ export default class BattleScene extends Phaser.Scene {
         .setOrigin(0)
         .setScale(1.3);
       // 實際顯示 = hp百分比 * 147
-      this.playerMaxHp = this.playerPokemonTeam[0].maxHp;
-      this.playerCurrentHp = this.playerPokemonTeam[0].currentHp;
+      const currentUsePokemon = this.playerPokemonTeam.find(pokemon => pokemon.currentHp !== 0);
+      this.playerMaxHp = currentUsePokemon.maxHp;
+      this.playerCurrentHp = currentUsePokemon.currentHp;
+      console.log(this.playerCurrentHp, this.playerMaxHp);
       this.playerHpBar.displayWidth =
         147 * (this.playerCurrentHp / this.playerMaxHp);
       this.playerExpBar = this.add
@@ -460,15 +468,21 @@ export default class BattleScene extends Phaser.Scene {
           repeat: 1,
           ease: 'Cubic.easeOut',
           onComplete: () => {
-            const playerCurrentHp = window.GameObjects.playerPokemonTeam[0].currentHp;
+            // const playerCurrentHp = window.GameObjects.playerPokemonTeam[0].currentHp;
+            const playerCurrentHp = window.GameObjects.playerPokemonTeam.find(pokemon => pokemon.currentHp !== 0).currentHp;
+            console.log(playerCurrentHp);
             if (playerCurrentHp <= 0) {
               // 結束戰鬥
+              // TODO: 若隊伍中有HP不為0的POKEMON則選擇第一個不為0者
               this.playerHpBar.displayWidth = 0;
               window.GameObjects.isEndBattle = true;
               this.scene.run('TextScene', {
                 text: `你被野生的${this.wildPokemonName}擊敗了!`,
               });
               this.winner = 'opponent';
+              
+              const targetIndex = window.GameObjects.playerPokemonTeam.findIndex(pokemon => pokemon.currentHp !== 0);
+              window.GameObjects.playerPokemonTeam[targetIndex].currentHp = 0;
 
               return;
             }

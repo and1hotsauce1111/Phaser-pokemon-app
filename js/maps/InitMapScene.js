@@ -81,6 +81,7 @@ export default class InitMapScene extends Phaser.Scene {
         initPokemon.zh_Hant_name = name;
         window.GameObjects.playerPokemonTeam.push(initPokemon);
       }
+      console.log(window.GameObjects.playerPokemonTeam);
     }
 
     // 添加障礙物

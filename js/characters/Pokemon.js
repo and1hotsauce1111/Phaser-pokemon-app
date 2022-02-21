@@ -86,7 +86,6 @@ export default class Pokemon {
     return Promise.all(
       movesArray.map((move) => fetch(move.move.url).then((res) => res.json()))
     ).then((moves) => {
-      console.log("get moves");
       pokemonInfo.moves = moves;
       // move pp
       let movePP = {};
