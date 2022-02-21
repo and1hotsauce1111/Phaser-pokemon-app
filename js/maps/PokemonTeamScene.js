@@ -112,16 +112,22 @@ export default class PokemonTeamScene extends Phaser.Scene {
     this.currentUsePokemonHp = this.add
       .image(100, 230, "hp-bar-container")
       .setDepth(13);
-    this.currentUsePokemonBar = this.add
+    this.currentUsePokemonHpBar = this.add
       .image(95, 229, "hp-bar")
       .setOrigin(0)
       .setScale(1.2)
       .setDepth(13);
+
+    this.currentUsePokemonHpBar.displayWidth =
+      147 * (this.pokemonTeamList[0].currentHp / this.pokemonTeamList[0].maxHp);
+
     this.currentUsePokemonHpText = this.add
       .text(
         135,
         240,
-        `${this.pokemonTeamList[0].currentHp}/${this.pokemonTeamList[0].maxHp}`,
+        `${Math.floor(this.pokemonTeamList[0].currentHp)}/${
+          this.pokemonTeamList[0].maxHp
+        }`,
         {
           font: "30px monospace",
           color: "#fff",
@@ -215,11 +221,19 @@ export default class PokemonTeamScene extends Phaser.Scene {
       .setOrigin(0)
       .setScale(1.2)
       .setDepth(13);
+
+    this[`pokemonHpBar${index}`].displayWidth =
+      147 *
+      (this.pokemonTeamList[index].currentHp /
+        this.pokemonTeamList[index].maxHp);
+
     this[`pokemonHpBarText${index}`] = this.add
       .text(
         600,
         y + 40,
-        `${this.pokemonTeamList[index].currentHp}/${this.pokemonTeamList[index].maxHp}`,
+        `${Math.floor(this.pokemonTeamList[index].currentHp)}/${
+          this.pokemonTeamList[index].maxHp
+        }`,
         {
           font: "30px monospace",
           color: "#fff",
@@ -568,10 +582,16 @@ export default class PokemonTeamScene extends Phaser.Scene {
       this.currentUsePokemonLevel.setText(`Lv${level}`);
 
       // HP
-      // TODO: reset hp bar display width
+      // TODO: add recover hp anim
       this.currentUsePokemonHpText.setText(
-        `${this.pokemonTeamList[switchIndex].currentHp}/${this.pokemonTeamList[switchIndex].maxHp}`
+        `${Math.floor(this.pokemonTeamList[switchIndex].currentHp)}/${
+          this.pokemonTeamList[switchIndex].maxHp
+        }`
       );
+      this.currentUsePokemonHpBar.displayWidth =
+        147 *
+        (this.pokemonTeamList[switchIndex].currentHp /
+          this.pokemonTeamList[switchIndex].maxHp);
 
       this.tweens.add({
         targets: this.currentUsePokemonIcon,
@@ -593,8 +613,15 @@ export default class PokemonTeamScene extends Phaser.Scene {
       this[`pokemonLevel${switchIndex}`].setText(`Lv${switchLevel}`);
       // TODO: reset hp bar display width
       this[`pokemonHpBarText${switchIndex}`].setText(
-        `${this.pokemonTeamList[0].currentHp}/${this.pokemonTeamList[0].maxHp}`
+        `${Math.floor(this.pokemonTeamList[0].currentHp)}/${
+          this.pokemonTeamList[0].maxHp
+        }`
       );
+
+      // TODO: add recover hp anim
+      this[`pokemonHpBar${switchIndex}`].displayWidth =
+        147 *
+        (this.pokemonTeamList[0].currentHp / this.pokemonTeamList[0].maxHp);
     } else if (switchIndex === 0) {
       // 列表中pokemon與使用中的pokemon交換
       this.currentUsePokemonIcon.setTexture(`pokemon-icon-${originIndex + 1}`);
@@ -607,8 +634,16 @@ export default class PokemonTeamScene extends Phaser.Scene {
       this.currentUsePokemonLevel.setText(`Lv${level}`);
 
       this.currentUsePokemonHpText.setText(
-        `${this.pokemonTeamList[originIndex].currentHp}/${this.pokemonTeamList[originIndex].maxHp}`
+        `${Math.floor(this.pokemonTeamList[originIndex].currentHp)}/${
+          this.pokemonTeamList[originIndex].maxHp
+        }`
       );
+
+      // TODO: add recover hp anim
+      this.currentUsePokemonHpBar.displayWidth =
+        147 *
+        (this.pokemonTeamList[originIndex].currentHp /
+          this.pokemonTeamList[originIndex].maxHp);
 
       this.tweens.add({
         targets: this.currentUsePokemonIcon,
@@ -627,8 +662,15 @@ export default class PokemonTeamScene extends Phaser.Scene {
       this[`pokemonLevel${originIndex}`].setText(`Lv${switchLevel}`);
       // TODO: reset hp bar display width
       this[`pokemonHpBarText${originIndex}`].setText(
-        `${this.pokemonTeamList[0].currentHp}/${this.pokemonTeamList[0].maxHp}`
+        `${Math.floor(this.pokemonTeamList[0].currentHp)}/${
+          this.pokemonTeamList[0].maxHp
+        }`
       );
+
+      // TODO: add recover hp anim
+      this[`pokemonHpBar${originIndex}`].displayWidth =
+        147 *
+        (this.pokemonTeamList[0].currentHp / this.pokemonTeamList[0].maxHp);
     } else {
       // 列表中的pokemon交換
       this[`pokemonIcon${originIndex}`].setTexture(this.switchPokemonSprite);
@@ -638,10 +680,17 @@ export default class PokemonTeamScene extends Phaser.Scene {
       this[`pokemonName${originIndex}`].setText(switchName);
       const switchLevel = this.pokemonTeamList[switchIndex].level;
       this[`pokemonLevel${originIndex}`].setText(`Lv${switchLevel}`);
-      // TODO: reset hp bar display width
       this[`pokemonHpBarText${originIndex}`].setText(
-        `${this.pokemonTeamList[switchIndex].currentHp}/${this.pokemonTeamList[switchIndex].maxHp}`
+        `${Math.floor(this.pokemonTeamList[switchIndex].currentHp)}/${
+          this.pokemonTeamList[switchIndex].maxHp
+        }`
       );
+
+      // TODO: add recover hp anim
+      this[`pokemonHpBar${originIndex}`].displayWidth =
+        147 *
+        (this.pokemonTeamList[switchIndex].currentHp /
+          this.pokemonTeamList[switchIndex].maxHp);
 
       this[`pokemonIcon${switchIndex}`].setTexture(
         `pokemon-icon-${originIndex + 1}`
@@ -652,10 +701,18 @@ export default class PokemonTeamScene extends Phaser.Scene {
       this[`pokemonName${switchIndex}`].setText(originName);
       const originLevel = this.pokemonTeamList[originIndex].level;
       this[`pokemonLevel${switchIndex}`].setText(`Lv${originLevel}`);
-      // TODO: reset hp bar display width
+      // TODO: add recover hp anim
       this[`pokemonHpBarText${switchIndex}`].setText(
-        `${this.pokemonTeamList[originIndex].currentHp}/${this.pokemonTeamList[originIndex].maxHp}`
+        `${Math.floor(this.pokemonTeamList[originIndex].currentHp)}/${
+          this.pokemonTeamList[originIndex].maxHp
+        }`
       );
+
+      // TODO: add recover hp anim
+      this[`pokemonHpBar${switchIndex}`].displayWidth =
+        147 *
+        (this.pokemonTeamList[originIndex].currentHp /
+          this.pokemonTeamList[originIndex].maxHp);
     }
 
     // store in window object
